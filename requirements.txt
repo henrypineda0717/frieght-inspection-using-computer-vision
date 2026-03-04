@@ -1,0 +1,32 @@
+# Core dependencies
+fastapi>=0.104.0
+uvicorn[standard]>=0.24.0
+python-multipart>=0.0.6
+pydantic>=2.0.0
+pydantic-settings>=2.0.0
+
+# Database
+sqlalchemy>=2.0.0
+
+# Computer Vision & AI
+ultralytics>=8.0.0
+opencv-python>=4.8.0
+numpy>=1.24.0
+pillow>=10.0.0
+boxmot>=10.0.0  # ByteTrack for smooth object tracking
+
+# OCR - PaddleOCR v4 Mobile (migrated from EasyOCR)
+paddleocr>=3.4.0
+paddlepaddle>=3.3.0
+
+# PDF Generation
+reportlab>=4.0.0
+pillow>=10.0.0
+
+# HTTP & API
+requests>=2.31.0
+aiofiles>=23.0.0
+
+# Optional: LLaVA support
+# torch>=2.0.0
+# transformers>=4.30.0

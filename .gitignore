@@ -1,0 +1,20 @@
+# Ignore Large Folders
+models/
+CV_Anton_All_Files/
+Container-side-1/
+inside-container-defects-1-6/
+storage/
+data/
+runs/
+videos/
+venv/
+.venv/
+__pycache__/
+
+# Ignore Large Files
+mobileclip2_b.ts
+*.db
+*.mp4
+*.zip
+
+# DO NOT ignore .py files!

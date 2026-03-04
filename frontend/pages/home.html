@@ -1,0 +1,152 @@
+<div class="layout">
+  <!-- LEFT COLUMN: video & controls -->
+  <section class="card video-card">
+    <div class="video-container">
+      <video id="video" muted></video>
+      <canvas id="overlay"></canvas>
+    </div>
+    <!-- Control bar with reordered buttons -->
+    <div class="control-bar">
+      <!-- Left group: playback & auto -->
+      <div class="left-controls">
+        <label for="fileInput" class="btn btn-primary"><i class="fas fa-folder-open"></i> Choose</label>
+        <input type="file" id="fileInput" accept="image/*,video/*">
+        <button id="btnAnalyze" class="btn btn-primary" disabled><i class="fas fa-search"></i> Analyze</button>
+        <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
+      </div>
+      <!-- Right group: file selection & analysis -->
+      <div class="right-controls">
+        <button id="btnPlay" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+        <button id="btnPause" class="btn btn-primary"><i class="fas fa-pause"></i> Pause</button>
+        <button id="btnStop" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
+      </div>
+    </div>
+    <!-- Analysis parameters -->
+    <div class="analysis-controls">
+      <div class="control-group"><span>Damage sensitivity:</span>
+        <select id="damageSensitivity">
+          <option value="low">Low</option>
+          <option value="medium" selected>Medium</option>
+          <option value="high">High</option>
+        </select>
+      </div>
+      <div class="control-group"><span>Dark spots:</span>
+        <select id="spotMode">
+          <option value="auto" selected>Auto</option>
+          <option value="mold_only">Mold Only</option>
+          <option value="off">Off</option>
+        </select>
+      </div>
+    </div>
+    <!-- Stage controls -->
+    <div class="stage-controls">
+      <span>Inspection stage:</span>
+      <button id="btnStagePre" class="btn btn-secondary btn-stage">Pre Wash</button>
+      <button id="btnStagePost" class="btn btn-secondary btn-stage">Post Wash</button>
+      <button id="btnStageNone" class="btn btn-secondary btn-stage">None</button>
+    </div>
+    <!-- View type buttons -->
+    <div class="view-controls" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
+      <span>View type:</span>
+      <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
+      <button id="btnViewInterior" class="btn btn-secondary btn-stage">Interior</button>
+      <span id="viewLabel" class="view-label">View: none</span>
+    </div>
+    <!-- Recent Files -->
+    <div class="recent-files">
+      <h3 class="recent-title">Recent Files</h3>
+      <table class="recent-table">
+        <thead><tr><th>File</th><th>Date</th><th>Status</th></tr></thead>
+        <tbody id="recentFilesBody">
+          <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+          <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+          <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+        </tbody>
+      </table>
+      <div class="see-all"><a href="#" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
+    </div>
+  </section>
+
+  <!-- RIGHT COLUMN -->
+  <section class="card status-card">
+    <!-- Container summary -->
+    <div class="summary-block">
+      <div class="summary-title-main">Container ID: <span id="summaryContainerId"></span></div>
+      <div class="badges-row">
+        <span id="summaryStatusBadge" class="badge"><i class="fas fa-check-circle"></i> Status: </span>
+        <span id="summaryStageBadge" class="badge"><i class="fas fa-tint"></i> Stage: </span>
+        <span id="summaryPeopleBadge" class="badge badge-muted"><i class="fas fa-user"></i> Person: </span>
+        <span id="summaryDoorBadge" class="badge badge-muted"><i class="fas fa-door-open"></i> Doors: </span>
+        <span id="summaryAnomBadge" class="badge badge-muted"><i class="fas fa-exclamation-triangle"></i> Anomalies: </span>
+      </div>
+    </div>
+    <!-- Pie chart + contamination -->
+    <div class="stats-row">
+      <div class="pie-card">
+        <div class="pie-chart-placeholder">
+          <div class="pie"></div>
+          <span class="pie-label">Defects by Type</span>
+        </div>
+        <div class="stats-numbers">
+          <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
+          <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
+          <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
+          <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
+        </div>
+      </div>
+      <div class="contamination-card">
+        <h4 class="contamination-title">Contamination Level</h4>
+        <div class="cont-scale-vertical">
+          <div class="cont-scale-header"><span>Level</span><span id="contScaleValueText">—</span></div>
+          <div class="cont-scale-bar-vertical" id="contScaleBarVertical">
+            <div class="cont-box-vertical" data-level="1" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="2" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="3" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="4" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="5" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="6" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="7" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="8" style="height:20px; background-color:#b9c2d0;"></div>
+            <div class="cont-box-vertical" data-level="9" style="height:20px; background-color:#b9c2d0;"></div>
+          </div>
+          <div class="cont-scale-label">Cleaning estimate based on findings.</div>
+        </div>
+      </div>
+    </div>
+    <!-- Inspection Results Table -->
+    <div class="inspection-table-container">
+      <div class="table-header">
+        <h3 class="table-title">Inspection Results</h3>
+        <div class="legend-row">
+          <div class="legend-item"><span class="legend-color" style="background:#00cc00;"></span> Low (0–30)</div>
+          <div class="legend-item"><span class="legend-color" style="background:#ffcc00;"></span> Medium (31–70)</div>
+          <div class="legend-item"><span class="legend-color" style="background:#cc0000;"></span> High (71–100)</div>
+        </div>
+      </div>
+      <table class="inspection-table">
+        <thead>
+          <tr>
+            <th>Defect</th>
+            <th>Pre Wash</th>
+            <th>After Wash</th>
+          </tr>
+        </thead>
+        <tbody id="inspectionTableBody">
+          <tr><td class="defect-name">Cracks</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Dents</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Rust & Corrosion</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Holes</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Dust & Powder</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Oil & Stains</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Nails & Fasteners</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+          <tr><td class="defect-name">Floor Structural Damage</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
+        </tbody>
+      </table>
+      <!-- Save buttons -->
+      <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
+        <button id="btnDownloadReport" class="btn btn-secondary" disabled>📄 Download Report</button>
+        <button id="btnSaveToDatabase" class="btn btn-secondary" disabled>💾 Save to Database</button>
+      </div>
+    </div>
+  </section>
+</div>
