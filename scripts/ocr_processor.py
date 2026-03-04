@@ -3,7 +3,7 @@ import cv2
 import numpy as np
 from PIL import Image
 import pillow_heif
-from container_processor import ContainerProcessor
+from scripts.container_processor import ContainerProcessor
 from backend.app.services.ocr_engine import OCREngine
 
 class OCRProcessor:

@@ -2,31 +2,34 @@
 <html lang="en">
 <head>
     <meta charset="UTF-8">
-    <title>MCS Robotics – Container Inspector</title>
+    <title>MCS Robotics – Container Inspection</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
     <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/history.css">
 </head>
 <body>
-    <!-- Sidebar (unchanged) -->
+    <!-- Sidebar (fixed) -->
     <div class="sidebar" id="sidebar">
         <div class="sidebar-header">
             <img class="sidebar-logo" src="/assets/images/pti-logo.png" alt="PTI logo">
         </div>
         <ul class="sidebar-menu">
-            <li class="sidebar-item active"><a href="#"><i class="fas fa-home"></i><span class="sidebar-label">Home</span></a></li>
-            <li class="sidebar-item"><a href="#"><i class="fas fa-video"></i><span class="sidebar-label">Live Analysis</span></a></li>
-            <li class="sidebar-item"><a href="#"><i class="fas fa-history"></i><span class="sidebar-label">History</span></a></li>
-            <li class="sidebar-item"><a href="#"><i class="fas fa-cog"></i><span class="sidebar-label">Settings</span></a></li>
-            <li class="sidebar-item"><a href="#"><i class="fas fa-info-circle"></i><span class="sidebar-label">About Us</span></a></li>
+            <li class="sidebar-item"><a href="index.html"><i class="fas fa-home"></i><span class="sidebar-label">Home</span></a></li>
+            <li class="sidebar-item"><a href="history.html"><i class="fas fa-history"></i><span class="sidebar-label">History</span></a></li>
+            <li class="sidebar-item"><a href="settings.html"><i class="fas fa-cog"></i><span class="sidebar-label">Settings</span></a></li>
+            <li class="sidebar-item"><a href="about-us.html"><i class="fas fa-info-circle"></i><span class="sidebar-label">About Us</span></a></li>
         </ul>
         <div class="sidebar-footer">
-            <span class="sidebar-version">v2.1.0</span>
-            <button class="sidebar-toggle" id="sidebarToggle"><i class="fas fa-angle-double-left"></i></button>
+    
+                <div class="version-container">
+                    <span class="sidebar-version">v2.1.0</span>
+                
+            </div>
         </div>
     </div>
 
-    <!-- Right column -->
+    <!-- Right column (fixed header & footer, dynamic main content) -->
     <div class="right-column">
         <div class="header-wrapper">
             <div class="page">
@@ -45,7 +48,9 @@
             </div>
         </div>
 
-        <div class="main-content">
+        <!-- Main content area – content will be loaded here dynamically -->
+        <div class="main-content" id="mainContentContainer">
+            <!-- Default home content (static, will be replaced on navigation) -->
             <div class="layout">
                 <!-- LEFT COLUMN: video & controls -->
                 <section class="card video-card">
@@ -54,24 +59,22 @@
                         <canvas id="overlay"></canvas>
                     </div>
 
-                    <!-- Control bar with reordered buttons -->
+                    <!-- Control bar -->
                     <div class="control-bar">
-                        <!-- Left group: playback & auto -->
                         <div class="left-controls">
                             <label for="fileInput" class="btn btn-primary"><i class="fas fa-folder-open"></i> Choose</label>
                             <input type="file" id="fileInput" accept="image/*,video/*">
                             <button id="btnAnalyze" class="btn btn-primary" disabled><i class="fas fa-search"></i> Analyze</button>
                             <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
                         </div>
-
-                        <!-- Right group: file selection & analysis -->
                         <div class="right-controls">
                             <button id="btnPlay" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
                             <button id="btnPause" class="btn btn-primary"><i class="fas fa-pause"></i> Pause</button>
                             <button id="btnStop" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
                         </div>
                     </div>
-                    <!-- Analysis parameters (unchanged) -->
+
+                    <!-- Analysis parameters -->
                     <div class="analysis-controls">
                         <div class="control-group"><span>Damage sensitivity:</span>
                             <select id="damageSensitivity">
@@ -97,7 +100,7 @@
                         <button id="btnStageNone" class="btn btn-secondary btn-stage">None</button>
                     </div>
 
-                    <!-- View type buttons -->
+                    <!-- View type -->
                     <div class="view-controls" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
                         <span>View type:</span>
                         <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
@@ -105,7 +108,7 @@
                         <span id="viewLabel" class="view-label">View: none</span>
                     </div>
 
-                    <!-- Recent Files (placeholder rows) -->
+                    <!-- Recent Files -->
                     <div class="recent-files">
                         <h3 class="recent-title">Recent Files</h3>
                         <table class="recent-table">
@@ -116,7 +119,7 @@
                                 <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
                             </tbody>
                         </table>
-                        <div class="see-all"><a href="#" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
+                        <div class="see-all"><a href="history.html" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
                     </div>
                 </section>
 
@@ -141,12 +144,12 @@
                                 <div class="pie"></div>
                                 <span class="pie-label">Defects by Type</span>
                             </div>
-                                <div class="stats-numbers">
-                                    <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
-                                    <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
-                                    <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
-                                    <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
-                                </div>
+                            <div class="stats-numbers">
+                                <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
+                                <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
+                                <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
+                                <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
+                            </div>
                         </div>
                         <div class="contamination-card">
                             <h4 class="contamination-title">Contamination Level</h4>
@@ -168,7 +171,7 @@
                         </div>
                     </div>
 
-                    <!-- Inspection Results Table (8 classes – Biological/Fungal removed) -->
+                    <!-- Inspection Results Table -->
                     <div class="inspection-table-container">
                         <div class="table-header">
                             <h3 class="table-title">Inspection Results</h3>
@@ -198,17 +201,17 @@
                             </tbody>
                         </table>
 
-                        <!-- Save buttons below table -->
+                        <!-- Save buttons -->
                         <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
-                            <button id="btnDownloadReport" class="btn btn-secondary" >📄 Download Report</button>
-                            <button id="btnSaveToDatabase" class="btn btn-secondary" >💾 Save to Database</button>
+                            <button id="btnDownloadReport" class="btn btn-secondary">📄 Download Report</button>
+                            <button id="btnSaveToDatabase" class="btn btn-secondary">💾 Save to Database</button>
                         </div>
                     </div>
                 </section>
             </div>
         </div>
 
-        <!-- Footer with backend status at right end -->
+        <!-- Footer (fixed) -->
         <div class="footer-wrapper">
             <div class="page">
                 <footer class="app-footer" style="display: flex; justify-content: space-between; align-items: center;">
@@ -222,7 +225,97 @@
         </div>
     </div>
 
-    <!-- JavaScript -->
+    <!-- Shared JavaScript (global functions, sidebar toggle, etc.) -->
     <script src="/assets/js/scripts.js"></script>
+    <script src="/assets/js/history.js"></script>
+
+    <script>
+    (function() {
+        const mainContainer = document.getElementById('mainContentContainer');
+        const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
+        const homeContent = mainContainer.innerHTML; // stored home HTML
+
+        // Update active class on sidebar
+        function setActiveLink(url) {
+        const currentPage = url.split('/').pop() || 'index.html';
+        sidebarLinks.forEach(link => {
+            const linkHref = link.getAttribute('href');
+            link.closest('.sidebar-item').classList.toggle('active', linkHref === currentPage);
+        });
+        }
+
+        // Map page URLs to their initialisation functions
+        const pageInitMap = {
+        'history.html': window.initHistoryPage,
+        'live-analysis.html': window.initLiveAnalysis,
+        'settings.html': window.initSettings,
+        'about-us.html': window.initAbout
+        };
+
+        // Load content from a fragment URL
+        async function loadContent(url) {
+        if (url === 'index.html' || url === '' || url === '/') {
+            mainContainer.innerHTML = homeContent;
+            setActiveLink('index.html');
+            history.pushState({ url: 'index.html' }, '', 'index.html');
+            return;
+        }
+
+        try {
+            const response = await fetch(url);
+            if (!response.ok) throw new Error(`HTTP ${response.status}`);
+            const html = await response.text();
+            mainContainer.innerHTML = html;
+            setActiveLink(url);
+            history.pushState({ url }, '', url);
+
+            // Run page initialiser if available
+            const initFn = pageInitMap[url];
+            if (initFn && typeof initFn === 'function') {
+            initFn();
+            }
+        } catch (error) {
+            console.error('Failed to load page:', error);
+            mainContainer.innerHTML = `<div class="error-message" style="padding:2rem;text-align:center;">Failed to load content. Please try again.</div>`;
+        }
+        }
+
+        // ---------- Handle initial page load ----------
+        const urlParams = new URLSearchParams(window.location.search);
+        const pageParam = urlParams.get('page');
+
+        if (pageParam) {
+        // Came here via redirect from a fragment: remove the query param
+        // and load the requested fragment.
+        const cleanUrl = window.location.pathname; // e.g., /index.html
+        history.replaceState(null, '', cleanUrl);
+        loadContent(pageParam);
+        } else {
+        const initialPath = window.location.pathname.split('/').pop() || 'index.html';
+        if (initialPath !== 'index.html') {
+            loadContent(initialPath);
+        } else {
+            setActiveLink('index.html');
+        }
+        }
+
+        // ---------- Sidebar click handling ----------
+        sidebarLinks.forEach(link => {
+        link.addEventListener('click', function(e) {
+            e.preventDefault();
+            loadContent(this.getAttribute('href'));
+        });
+        });
+
+        // ---------- Browser back/forward ----------
+        window.addEventListener('popstate', function(e) {
+        if (e.state && e.state.url) {
+            loadContent(e.state.url);
+        } else {
+            loadContent('index.html');
+        }
+        });
+    })();
+    </script>
 </body>
 </html>

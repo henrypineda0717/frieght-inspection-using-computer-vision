@@ -29,13 +29,51 @@
     --shadow-sm: 0 2px 6px rgba(0,0,0,0.03);
 }
 
-/* Overall layout – assumes we are inside .right-column .main-content */
 body {
     font-family: 'Inter', sans-serif;
     background: var(--bg-primary);
     color: var(--text-primary);
     line-height: 1.4;
 }
+
+.download-btn {
+    background: none;
+    border: none;
+    color: var(--accent-blue); /* Or a professional navy/slate */
+    cursor: pointer;
+    padding: 4px 8px;
+    font-size: 1.1rem; /* Slightly larger icon for clickability */
+    transition: color 0.2s ease;
+}
+
+.download-btn:hover {
+    color: #1e40af; /* Darker blue on hover */
+}
+
+/* Optional: If you want it to look like a small document badge */
+.download-btn i {
+    filter: drop-shadow(0 1px 1px rgba(0,0,0,0.1));
+}
+
+
+.delete-btn {
+    background: transparent;
+    border: none;
+    color: #64748b; /* Professional slate gray */
+    padding: 6px;
+    cursor: pointer;
+    transition: color 0.2s ease, transform 0.1s ease;
+}
+
+.delete-btn:hover {
+    color: #dc2626; /* Serious industrial red on hover */
+    transform: scale(1.05);
+}
+
+.delete-btn i {
+    font-size: 0.9rem; /* Keeps it sharp and precise */
+}
+
 
 /* Cards */
 .card {
@@ -45,6 +83,7 @@ body {
     padding: 12px;
     margin-bottom: 12px;
     box-shadow: var(--shadow-sm);
+    height: 100%;
 }
 
 .section-title {
@@ -83,13 +122,23 @@ body {
     margin-top: 4px;
 }
 
-/* Search bar */
+/* Search bar Container */
 .search-bar {
     display: flex;
-    gap: 8px;
-    margin-bottom: 16px;
-    flex-wrap: wrap;
+    justify-content: space-between; /* This handles the left/right grouping */
     align-items: center;
+    width: 100%;                  /* Changed from 60% to 100% */
+    margin-bottom: 16px;
+    flex-wrap: wrap;              /* Keeps it mobile friendly */
+    gap: 12px;                    /* Minimum gap if items get close */
+}
+
+/* Grouping Wrappers (matching the HTML I suggested previously) */
+.filter-group, 
+.action-group {
+    display: flex;
+    align-items: center;
+    gap: 8px; /* Spacing between items inside the groups */
 }
 
 .search-bar input,
@@ -104,11 +153,13 @@ body {
 }
 
 .search-bar input {
-    flex: 1;
+    /* flex: 1;  <- REMOVE THIS so it doesn't hog all the space */
     min-width: 200px;
 }
 
-/* Buttons (identical to index) */
+/* Rest of your .btn styles remain the same... */
+
+/* Buttons */
 .btn {
     border-radius: var(--radius-md);
     border: var(--border-width) solid var(--border-medium);
@@ -160,41 +211,59 @@ body {
     cursor: not-allowed;
 }
 
-/* Table (detections-table style from index) */
+/* 1. Set the table to fixed layout so column widths are predictable */
 .detections-table {
     width: 100%;
-    border-collapse: separate;
-    border-spacing: 0 4px;
+    border-spacing: 0 0.5px;
     margin-top: 8px;
     font-size: 0.8rem;
+    table-layout: fixed; /* Crucial: Forces columns to respect widths */
+    border-collapse: separate; /* Required for border-spacing to work */
+}
+
+/* 2. Standardize Header and Body Rows */
+.detections-table thead,
+.detections-table tbody tr {
+    display: table;
+    width: 100%;
+    table-layout: fixed;
+}
+
+/* 3. The Scrollable Container */
+.detections-table tbody {
+    display: block;
+    max-height: 530px;
+    overflow-y: auto;
+    overflow-x: hidden; /* Prevents awkward horizontal shifts */
+}
+
+/* 4. Cell Styling */
+.detections-table th, 
+.detections-table td {
+    text-align: left;
+    padding: 6px;
+    /* Ensure cells don't shrink or grow unevenly */
+    word-wrap: break-word; 
 }
 
 .detections-table th {
-    text-align: left;
-    padding: 6px 8px;
-    font-size: 0.7rem;
+    font-size: 0.9rem;
     color: var(--text-muted);
     border-bottom: var(--border-width) solid var(--border-light);
 }
 
 .detections-table td {
-    padding: 8px;
     background: var(--bg-secondary);
     border-radius: var(--radius-md);
     font-size: 0.75rem;
     color: var(--text-primary);
 }
 
-.detections-table tbody tr {
-    cursor: pointer;
-    transition: var(--transition);
-}
-
 .detections-table tbody tr:hover td {
     background: #cbd0da;
 }
 
-/* Badges (same as index) */
+/* Badges */
 .badge {
     padding: 4px 10px;
     border-radius: var(--radius-full);
@@ -229,9 +298,9 @@ body {
 /* Pagination */
 .pagination {
     display: flex;
-    gap: 12px;
+    gap: 6px;
     justify-content: center;
-    margin-top: 20px;
+    margin-top: 10px;
     align-items: center;
 }
 
@@ -241,62 +310,122 @@ body {
 }
 
 /* Detail View */
-.detail-view {
-    display: none;
-}
-
-.detail-view.active {
-    display: block;
-}
-
-.detail-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    margin-bottom: 16px;
-}
-
-.detail-header h2 {
-    font-size: 1.2rem;
-    font-weight: 600;
-    color: var(--text-primary);
-}
-
-/* Edit Form */
-.edit-form {
-    background: var(--bg-secondary);
-    padding: 12px;
-    border-radius: var(--radius-md);
-    border: var(--border-width) solid var(--border-light);
-    margin-bottom: 16px;
-}
-
-.edit-form h4 {
-    font-size: 0.9rem;
-    font-weight: 600;
-    margin-bottom: 8px;
-    color: var(--text-primary);
-}
-
-.edit-form label {
-    display: block;
-    font-size: 0.7rem;
-    color: var(--text-muted);
-    margin-bottom: 2px;
-}
-
-.edit-form input {
+/* Industrial Grid with Increased Spacing */
+.inspection-grid-industrial {
+    display: flex !important;
+    flex-direction: row !important;
+    gap: 32px; /* Increased Gap */
     width: 100%;
-    padding: 6px 10px;
-    background: white;
-    color: var(--text-primary);
-    border: var(--border-width) solid var(--border-medium);
-    border-radius: var(--radius-md);
-    font-size: 0.8rem;
-    margin-bottom: 8px;
-    font-family: inherit;
+    align-items: stretch; /* Forces equal height columns */
 }
 
+/* Blocks now blend with body background */
+.industrial-block {
+    background: transparent; 
+    border: var(--border-width) solid var(--border-medium);
+    border-radius: 0 !important; /* No radius */
+    padding: 16px;
+}
+
+.left-stack {
+    display: flex;
+    flex-direction: column;
+    gap: 24px; /* Vertical gap between image and form */
+}
+
+.section-subtitle {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    color: var(--text-muted);
+    margin-bottom: 12px;
+    border-bottom: var(--border-width) solid var(--border-medium);
+    padding-bottom: 6px;
+}
+
+/* Image Section */
+.image-container-bg {
+    background: #000;
+    height: 400px; /* Fixed height for consistency */
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.image-container-bg img {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+}
+
+/* Form & Input Overrides */
+.form-row {
+    display: flex;
+    gap: 16px;
+    margin-bottom: 16px;
+}
+
+.form-item input {
+    width: 100%;
+    padding: 8px;
+    border: var(--border-width) solid var(--border-medium);
+    border-radius: 0 !important; /* Sharp corners */
+    font-size: 0.85rem;
+    background: white;
+}
+
+.button-row {
+    display: flex;
+    gap: 12px;
+}
+
+.back-icon-link {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    color: var(--text-primary);
+    text-decoration: none;
+    font-size: 1.1rem;
+    transition: background 0.15s ease;
+    border: var(--border-width) solid transparent; /* Keeps layout stable on hover */
+}
+
+.back-icon-link:hover {
+    background: var(--bg-secondary);
+    border-color: var(--border-medium);
+    color: var(--accent-blue-hover);
+}
+
+/* Ensure the title doesn't wrap awkwardly next to the icon */
+.summary-title-main {
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+}
+
+/* Column 2 - Defect List Height Match */
+.defect-list-section {
+    height: 100%; /* Spans full height of Column 1 */
+    display: flex;
+    flex-direction: column;
+}
+
+.table-scroll-area {
+    flex: 1;
+    overflow-y: auto;
+}
+
+/* Column Widths */
+.col-48 { width: 48% !important; flex-shrink: 0; }
+.col-32 { width: 32% !important; flex-shrink: 0; }
+.col-20 { width: 16% !important; flex-shrink: 0; }
+
+/* Remove radius from any inherited button styles */
+.btn, .badge {
+    border-radius: 0 !important;
+}
 /* Metadata Grid */
 .metadata-grid {
     display: grid;
@@ -331,6 +460,8 @@ body {
     display: grid;
     grid-template-columns: repeat(auto-fill, minmax(280px, 1fr));
     gap: 12px;
+
+
 }
 
 .frame-card {
@@ -374,7 +505,7 @@ body {
     border-bottom: var(--border-width) dotted var(--border-light);
 }
 
-/* Modal (light theme adapted) */
+/* Modal */
 .modal-overlay {
     display: none;
     position: fixed;
@@ -442,13 +573,4 @@ body {
     display: flex;
     gap: 8px;
     justify-content: flex-end;
-}
-
-/* Additional utility for consistent spacing */
-.view-label {
-    font-size: 0.75rem;
-    background: var(--bg-secondary);
-    padding: 2px 8px;
-    border-radius: var(--radius-full);
-    font-weight: 500;
 }

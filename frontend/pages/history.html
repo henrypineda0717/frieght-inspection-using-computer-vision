@@ -1,47 +1,47 @@
-<!DOCTYPE html>
-<html lang="en">
-<head>
-    <meta charset="UTF-8" />
-    <title>PTI - Inspection History | MCS Robotics</title>
-    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
-    <link rel="stylesheet" href="/assets/css/history.css">
-    <!-- history.css now matches silver compact theme -->
-</head>
-<body style="background: var(--bg-primary); padding: 16px;">
-    <!-- Main content only (no header/footer) -->
-    <div class="page main-content" style="max-width: 1600px; margin: 0 auto;">
-        <!-- Statistics Dashboard -->
-        <div class="card">
-            <h3 class="section-title">System Statistics</h3>
-            <div class="stats-grid" id="statsGrid">
-                <div class="stat-box">
-                    <div class="stat-value" id="statInspections">-</div>
-                    <div class="stat-label">Total Inspections</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="statContainers">-</div>
-                    <div class="stat-label">Containers</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="statFrames">-</div>
-                    <div class="stat-label">Frames Analyzed</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="statDetections">-</div>
-                    <div class="stat-label">Detections</div>
-                </div>
-                <div class="stat-box">
-                    <div class="stat-value" id="statAlerts">-</div>
-                    <div class="stat-label">Alerts</div>
-                </div>
+<!-- History page content fragment -->
+<!-- history.html – content fragment -->
+<div class="page main-content" style="max-width: 1600px; margin: 0 auto;">
+    <!-- Statistics Dashboard -->
+     <script>
+  (function() {
+    // If we are not inside the full layout (sidebar missing), redirect
+    if (!document.getElementById('sidebar')) {
+      var currentFile = window.location.pathname.split('/').pop();
+      window.location.replace('/?page=' + encodeURIComponent(currentFile));
+    }
+  })();
+</script>
+    <div class="card">
+        <div class="stats-grid" id="statsGrid">
+            <div class="stat-box">
+                <div class="stat-value" id="statInspections">-</div>
+                <div class="stat-label">Total Inspections</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statContainers">-</div>
+                <div class="stat-label">Containers</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statFrames">-</div>
+                <div class="stat-label">Frames Analyzed</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statDetections">-</div>
+                <div class="stat-label">Detections</div>
+            </div>
+            <div class="stat-box">
+                <div class="stat-value" id="statAlerts">-</div>
+                <div class="stat-label">Alerts</div>
             </div>
         </div>
+    </div>
 
-        <!-- List View -->
-        <div class="card" id="listView">
-            <h3 class="section-title">Inspection History</h3>
-            <div class="search-bar">
+    <!-- List View -->
+    <div class="card" id="listView">
+        <h3 class="section-title">Inspection History</h3>
+        <div class="search-bar">
+            <!-- Left Group: Filters -->
+            <div class="filter-group">
                 <input type="text" id="searchInput" placeholder="Search by Container ID..." />
                 <select id="statusFilter">
                     <option value="">All Status</option>
@@ -54,60 +54,114 @@
                     <option value="post">Post Wash</option>
                 </select>
                 <button class="btn btn-primary" onclick="loadHistory()"><i class="fas fa-search"></i> Search</button>
+            </div>
+
+            <!-- Right Group: Actions -->
+            <div class="action-group">
                 <button class="btn btn-secondary" onclick="clearFilters()"><i class="fas fa-times"></i> Clear</button>
                 <button class="btn btn-secondary" onclick="cleanupOrphanedContainers()" title="Remove containers with no inspections"><i class="fas fa-broom"></i> Cleanup</button>
             </div>
-            <table class="detections-table">
-                <thead>
-                    <tr>
-                        <th>ID</th>
-                        <th>Container ID</th>
-                        <th>Type</th>
-                        <th>Timestamp</th>
-                        <th>Stage</th>
-                        <th>Status</th>
-                        <th>Risk</th>
-                        <th>Contamination</th>
-                        <th>Frames</th>
-                        <th>Detections</th>
-                        <th>Actions</th>
-                    </tr>
-                </thead>
-                <tbody id="historyTable"></tbody>
-            </table>
-            <div class="pagination">
-                <button class="btn btn-secondary" id="btnPrevPage" onclick="prevPage()"><i class="fas fa-chevron-left"></i> Prev</button>
-                <span id="pageInfo" class="page-info">Page 1</span>
-                <button class="btn btn-secondary" id="btnNextPage" onclick="nextPage()">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+        <table class="detections-table">
+            <thead>
+                <tr>
+                    <th>ID</th>
+                    <th>Container ID</th>
+                    <th>Type</th>
+                    <th>Timestamp</th>
+                    <th>Stage</th>
+                    <th>Status</th>
+                    <th>Risk</th>
+                    <th>Contamination</th>
+                    <th>Frames</th>
+                    <th>Detections</th>
+                    <th>Actions</th>
+                </tr>
+            </thead>
+            <tbody id="historyTable"></tbody>
+        </table>
+    
+        <div class="pagination">
+            <button class="btn btn-secondary" id="btnPrevPage" onclick="prevPage()"><i class="fas fa-chevron-left"></i> Prev</button>
+            <span id="pageInfo" class="page-info">Page 1</span>
+            <button class="btn btn-secondary" id="btnNextPage" onclick="nextPage()">Next <i class="fas fa-chevron-right"></i></button>
+        </div>
+
+    </div>
+    
+    <!-- Detail View -->
+<div class="card detail-view active" id="detailView" style="background: transparent; box-shadow: none; padding: 0;">
+    <div class="detail-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+        <!-- Icon-only Back Action -->
+        <a href="javascript:void(0)" class="back-icon-link" onclick="backToList()" title="Back to Fleet">
+            <i class="fas fa-arrow-left"></i>
+        </a>
+
+        <!-- ID Information -->
+        <h2 id="detailTitle" class="summary-title-main" style="margin: 0;">
+            Inspection #37 — <span style="color: var(--accent-blue); font-weight: 800;">TCLU 449L5L</span>
+        </h2>
+    </div>
+
+    <div class="inspection-grid-industrial">
+        <!-- Column 1 (48%): Image & Metadata -->
+        <div class="grid-col col-48 left-stack">
+            <div class="industrial-block image-section">
+                <div class="image-container-bg">
+                    <img id="detailMainImage" src="placeholder.jpg" alt="Container Frame">
+                </div>
+            </div>
+            
+            <div class="industrial-block metadata-section">
+                <h4 class="section-subtitle">Metadata Override</h4>
+                <div class="form-row">
+                    <div class="form-item">
+                        <label>Container ID</label>
+                        <input type="text" id="editContainerId" value="TCLU449L5L">
+                    </div>
+                    <div class="form-item">
+                        <label>ISO Type</label>
+                        <input type="text" id="editIsoType" value="45R1">
+                    </div>
+                </div>
+                <div class="button-row">
+                    <button class="btn btn-primary action-flex" style="border-radius: 0;" onclick="saveMetadata()">
+                        <i class="fas fa-save"></i> Update Records
+                    </button>
+                    <button class="btn btn-secondary action-flex" style="border-radius: 0;" onclick="downloadReport()">
+                        <i class="fas fa-file-export"></i> Export PDF
+                    </button>
+                </div>
             </div>
         </div>
 
-        <!-- Detail View -->
-        <div class="card detail-view" id="detailView">
-            <div class="detail-header">
-                <h2 id="detailTitle">Inspection Details</h2>
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-secondary" onclick="downloadReport(currentInspectionId, currentInspectionData?.container_id)"><i class="fas fa-download"></i> Report</button>
-                    <button class="btn btn-danger" onclick="showDeleteModal(currentInspectionId, currentInspectionData?.container_id)"><i class="fas fa-trash"></i> Delete</button>
-                    <button class="btn btn-secondary" onclick="backToList()"><i class="fas fa-arrow-left"></i> Back</button>
+        <!-- Column 2 (32%): Defect List (Height Matched) -->
+        <div class="grid-col col-32">
+            <div class="industrial-block defect-list-section">
+                <h4 class="section-subtitle">Defect Detections</h4>
+                <div class="table-scroll-area">
+                    <table class="inspection-table">
+                        <thead>
+                            <tr>
+                                <th>ID</th>
+                                <th>Type</th>
+                                <th>Severity</th>
+                                <th>Conf.</th>
+                            </tr>
+                        </thead>
+                        <tbody id="defectTableBody">
+                            <tr><td>#01</td><td>Dent</td><td><span class="badge badge-status-alert" style="border-radius:0;">High</span></td><td>92.4%</td></tr>
+                            <tr><td>#02</td><td>Rust</td><td><span class="badge badge-muted" style="border-radius:0;">Low</span></td><td>85.1%</td></tr>
+                        </tbody>
+                    </table>
                 </div>
             </div>
-            <div class="edit-form">
-                <h4>Edit Metadata (OCR Override)</h4>
-                <label>Container ID:</label>
-                <input type="text" id="editContainerId" placeholder="e.g., ABCD1234567" />
-                <label>ISO Type:</label>
-                <input type="text" id="editIsoType" placeholder="e.g., 45R1" />
-                <div style="display: flex; gap: 8px;">
-                    <button class="btn btn-primary" onclick="saveMetadata()"><i class="fas fa-save"></i> Save Changes</button>
-                    <button class="btn btn-secondary" onclick="cancelEdit()">Cancel</button>
-                </div>
-            </div>
-            <div class="metadata-grid" id="metadataGrid"></div>
-            <h3 class="section-title" style="margin: 20px 0 12px;">Frames & Detections</h3>
-            <div class="frames-grid" id="framesGrid"></div>
         </div>
+
+        <!-- Column 3 (20%): Spacer -->
+        <div class="grid-col col-20"></div>
     </div>
+</div>
 
     <!-- Delete Confirmation Modal -->
     <div class="modal-overlay" id="deleteModal">
@@ -134,7 +188,6 @@
             </div>
         </div>
     </div>
-
-    <script src="/assets/js/history.js"></script>
-</body>
-</html>
+</div>
+<!-- History page specific JavaScript -->
+<script src="/assets/js/history.js"></script>

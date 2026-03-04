@@ -68,13 +68,31 @@ async def startup_event():
 app.include_router(api_router, prefix="/api")
 app.include_router(video_session_router)
 
-# Serve frontend static files
+
+# # Serve frontend static files
+# frontend_dir = settings.ROOT_DIR / "frontend"
+# if frontend_dir.exists():
+#     # Mount assets directory for CSS, JS, and images
+#     assets_dir = frontend_dir / "assets"
+#     app.mount("/", StaticFiles(directory=str(frontend_dir / "pages"), html=True), name="pages")
+#     if assets_dir.exists():
+#         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+from fastapi.staticfiles import StaticFiles
+
 frontend_dir = settings.ROOT_DIR / "frontend"
+
 if frontend_dir.exists():
-    # Mount assets directory for CSS, JS, and images
     assets_dir = frontend_dir / "assets"
+    pages_dir = frontend_dir / "pages"
+
+    # 1. Mount specific sub-directories FIRST
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
+
+    # 2. Mount the root last as a fallback
+    if pages_dir.exists():
+        app.mount("/", StaticFiles(directory=str(pages_dir), html=True), name="pages")
 
 # Serve frontend pages
 @app.get("/")

@@ -22663,3 +22663,260 @@ Falling back to detection-only mode (no tracking)
 2026-03-04 03:39:17,559 - app.services.video_processor_realtime - INFO - Processing thread stopped
 2026-03-04 03:39:17,616 - app.services.video_processor_realtime - INFO - Capture thread stopped
 2026-03-04 03:39:17,625 - app.services.video_processor_realtime - INFO - Video processing complete: 396 frames in 1091.0s (avg 0.4 FPS)
+2026-03-04 16:20:57,471 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:20:57,474 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:20:57,474 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:20:58,351 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:21:04,213 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:21:04,695 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 16:22:41,674 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:22:41,675 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:22:41,675 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:22:42,055 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:22:46,514 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:22:46,760 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 16:52:58,442 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:52:58,443 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:52:58,443 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:53:00,694 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:53:07,758 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:53:09,758 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 16:53:50,901 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:53:50,902 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:53:50,902 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:53:51,273 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:53:55,539 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:53:55,765 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 16:54:12,622 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:54:12,623 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:54:12,623 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:54:13,045 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:54:17,098 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:54:17,316 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 16:54:39,111 - root - INFO - Logging initialized at INFO level
+2026-03-04 16:54:39,112 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 16:54:39,112 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 16:54:39,498 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 16:54:43,734 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 16:54:43,997 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 17:15:38,998 - root - INFO - Logging initialized at INFO level
+2026-03-04 17:15:38,999 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 17:15:38,999 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 17:15:39,365 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 17:15:45,380 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 17:15:45,662 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 17:18:40,503 - root - INFO - Logging initialized at INFO level
+2026-03-04 17:18:40,504 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 17:18:40,505 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 17:18:40,856 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 17:18:45,484 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 17:18:45,756 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 17:19:25,213 - root - INFO - Logging initialized at INFO level
+2026-03-04 17:19:25,214 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 17:19:25,214 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 17:19:25,588 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 17:19:29,714 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 17:19:29,951 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 21:58:49,635 - root - INFO - Logging initialized at INFO level
+2026-03-04 21:58:49,639 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 21:58:49,639 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 21:58:50,165 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 21:58:54,260 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 21:58:54,488 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 22:00:33,541 - root - INFO - Logging initialized at INFO level
+2026-03-04 22:00:33,544 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 22:00:33,544 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 22:00:34,317 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 22:00:41,848 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 22:00:43,086 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-04 22:05:23,352 - root - INFO - Logging initialized at INFO level
+2026-03-04 22:05:23,355 - app.main - INFO - Loading YOLO models at startup...
+2026-03-04 22:05:23,355 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-04 22:05:23,797 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-04 22:05:28,241 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-04 22:05:28,510 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 00:20:58,245 - root - INFO - Logging initialized at INFO level
+2026-03-05 00:20:58,247 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 00:20:58,247 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 00:20:59,594 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 00:21:08,275 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 00:21:08,761 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 01:17:06,438 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:17:06,441 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:17:06,442 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:17:06,442 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:17:06,443 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:17:08,795 - app.services.result_aggregator - INFO - Aggregating 6 detections
+2026-03-05 01:17:08,795 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 6, General: 0
+2026-03-05 01:17:08,796 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 6 detections
+2026-03-05 01:17:08,797 - app.services.analysis_service - INFO - Multi-model analysis complete: 6 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:17:08,798 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:19:58,123 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:19:58,124 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:19:58,124 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:19:58,124 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:19:58,124 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:19:58,435 - app.services.result_aggregator - INFO - Aggregating 11 detections
+2026-03-05 01:19:58,435 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 11, General: 0
+2026-03-05 01:19:58,435 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 11 detections
+2026-03-05 01:19:58,436 - app.services.analysis_service - INFO - Multi-model analysis complete: 11 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:19:58,436 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:25:33,997 - root - INFO - Logging initialized at INFO level
+2026-03-05 01:25:33,999 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 01:25:33,999 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 01:25:34,615 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 01:25:43,055 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 01:25:43,368 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 01:26:52,685 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:26:52,685 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:26:52,685 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:26:52,685 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:26:52,685 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:26:53,099 - app.services.result_aggregator - INFO - Aggregating 8 detections
+2026-03-05 01:26:53,099 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 8, General: 0
+2026-03-05 01:26:53,099 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 8 detections
+2026-03-05 01:26:53,100 - app.services.analysis_service - INFO - Multi-model analysis complete: 8 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:26:53,100 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:29:34,680 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:29:34,689 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:29:34,689 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:29:34,690 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:29:34,690 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:29:35,012 - app.services.result_aggregator - INFO - Aggregating 8 detections
+2026-03-05 01:29:35,012 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 8, General: 0
+2026-03-05 01:29:35,012 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 8 detections
+2026-03-05 01:29:35,013 - app.services.analysis_service - INFO - Multi-model analysis complete: 8 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:29:35,013 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:38:50,962 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:38:50,963 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:38:50,963 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:38:50,963 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:38:50,963 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:38:51,288 - app.services.detection_coordinator - WARNING - YOLOE model did not produce masks – cannot extract container region.
+2026-03-05 01:38:51,635 - app.services.result_aggregator - INFO - Aggregating 6 detections
+2026-03-05 01:38:51,635 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 6, General: 0
+2026-03-05 01:38:51,635 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 6 detections
+2026-03-05 01:38:51,637 - app.services.analysis_service - INFO - Multi-model analysis complete: 6 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:38:51,637 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:38:53,528 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:38:53,529 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:38:53,529 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:38:53,529 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:38:53,529 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:38:53,850 - app.services.result_aggregator - INFO - Aggregating 6 detections
+2026-03-05 01:38:53,850 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 6, General: 0
+2026-03-05 01:38:53,851 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 6 detections
+2026-03-05 01:38:53,851 - app.services.analysis_service - INFO - Multi-model analysis complete: 6 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:38:53,851 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 01:44:49,547 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:44:49,548 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 01:44:49,548 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 01:44:49,548 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 01:44:49,548 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 01:44:49,901 - app.services.result_aggregator - INFO - Aggregating 8 detections
+2026-03-05 01:44:49,901 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 8, General: 0
+2026-03-05 01:44:49,901 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 8 detections
+2026-03-05 01:44:49,902 - app.services.analysis_service - INFO - Multi-model analysis complete: 8 detections, container_id=UNKNOWN, status=ok
+2026-03-05 01:44:49,902 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 02:01:06,761 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:01:06,763 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 02:01:06,763 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:01:06,763 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 02:01:06,763 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 02:01:08,677 - app.services.result_aggregator - INFO - Aggregating 8 detections
+2026-03-05 02:01:08,677 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 8, General: 0
+2026-03-05 02:01:08,678 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 8 detections
+2026-03-05 02:01:08,682 - app.services.analysis_service - INFO - Multi-model analysis complete: 8 detections, container_id=UNKNOWN, status=ok
+2026-03-05 02:01:08,682 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 02:01:33,500 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:01:33,501 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 02:01:33,501 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:01:33,501 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 02:01:33,501 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 02:01:33,794 - app.services.result_aggregator - INFO - Aggregating 6 detections
+2026-03-05 02:01:33,794 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 6, General: 0
+2026-03-05 02:01:33,794 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 6 detections
+2026-03-05 02:01:33,794 - app.services.analysis_service - INFO - Multi-model analysis complete: 6 detections, container_id=UNKNOWN, status=ok
+2026-03-05 02:01:33,794 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 02:01:36,917 - app.api.analysis - INFO - 💾 Saving edited analysis for container: UNKNOWN
+2026-03-05 02:01:37,020 - app.services.persistence_service - INFO - Created inspection record: 42
+2026-03-05 02:01:37,078 - app.services.persistence_service - INFO - Successfully persisted analysis for inspection 42
+2026-03-05 02:01:37,078 - app.api.analysis - INFO - ✅ Analysis saved successfully with inspection_id: 42
+2026-03-05 02:14:39,886 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:14:39,888 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:14:39,888 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:14:40,529 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:14:46,415 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:14:46,647 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:15:26,457 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:15:26,463 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:15:26,463 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:15:27,306 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:15:33,456 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:15:34,374 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:17:01,670 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:17:01,670 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 02:17:01,670 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:17:01,670 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 02:17:01,670 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 02:17:02,023 - app.services.result_aggregator - INFO - Aggregating 8 detections
+2026-03-05 02:17:02,023 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 8, General: 0
+2026-03-05 02:17:02,024 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 8 detections
+2026-03-05 02:17:02,024 - app.services.analysis_service - INFO - Multi-model analysis complete: 8 detections, container_id=UNKNOWN, status=ok
+2026-03-05 02:17:02,024 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 02:26:01,360 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:26:01,364 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:26:01,364 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:26:02,594 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:26:07,162 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:26:07,384 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:26:30,488 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:26:30,490 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:26:30,490 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:26:31,142 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:26:35,681 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:26:35,996 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:26:57,125 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:26:57,129 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 02:26:57,129 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:26:57,129 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 02:26:57,129 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 02:26:57,497 - app.services.result_aggregator - INFO - Aggregating 16 detections
+2026-03-05 02:26:57,497 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 16, General: 0
+2026-03-05 02:26:57,497 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 16 detections
+2026-03-05 02:26:57,499 - app.services.analysis_service - INFO - Multi-model analysis complete: 16 detections, container_id=UNKNOWN, status=ok
+2026-03-05 02:26:57,499 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)
+2026-03-05 02:29:55,012 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:29:55,017 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:29:55,017 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:29:55,407 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:29:59,619 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:29:59,844 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:30:47,527 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:30:47,529 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:30:47,529 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:30:47,921 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:30:52,951 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:30:53,186 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:31:45,312 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:31:45,314 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:31:45,314 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:31:46,183 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:31:51,272 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:31:52,023 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:32:09,566 - root - INFO - Logging initialized at INFO level
+2026-03-05 02:32:09,569 - app.main - INFO - Loading YOLO models at startup...
+2026-03-05 02:32:09,569 - app.services.model_manager - INFO - ModelManager initialized with YOLOE, RF-DETR, and PaddleOCR
+2026-03-05 02:32:10,025 - app.services.model_manager - INFO - YOLOE loaded from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/container_front.pt
+2026-03-05 02:32:15,460 - app.services.model_manager - INFO - RF-DETR loaded and optimized from /home/haile/ai/projects/upwork/Code-20260216T171605Z-1-001/Code/models/checkpoint_best_ema.pth
+2026-03-05 02:32:15,749 - app.main - INFO - Model loading complete: 2/3 models loaded
+2026-03-05 02:33:42,192 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:33:42,193 - app.services.detection_coordinator - INFO - DetectionCoordinator initialized with quick_mode=False
+2026-03-05 02:33:42,193 - app.services.ocr_processor - INFO - OCRProcessor initialized
+2026-03-05 02:33:42,193 - app.services.result_aggregator - INFO - ResultAggregator initialized
+2026-03-05 02:33:42,194 - app.services.analysis_service - INFO - AnalysisService initialized with multi-model support (quick_mode=False)
+2026-03-05 02:33:42,806 - app.services.result_aggregator - INFO - Aggregating 17 detections
+2026-03-05 02:33:42,810 - app.services.result_aggregator - INFO -    ID detections: 0, Damage: 17, General: 0
+2026-03-05 02:33:42,811 - app.services.result_aggregator - INFO - [AGGREGATOR] Enriched 17 detections
+2026-03-05 02:33:42,814 - app.services.analysis_service - INFO - Multi-model analysis complete: 17 detections, container_id=UNKNOWN, status=ok
+2026-03-05 02:33:42,814 - app.api.analysis - INFO - Analysis completed without saving (auto_save=False)

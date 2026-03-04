@@ -27,3 +27,4 @@ class App {
     
     // Set up event listeners
   }
+}

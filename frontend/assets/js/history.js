@@ -1,3 +1,4 @@
+// history.js – Full integration with original UI and backend
 const API_BASE = "http://localhost:8001";
 let currentPage = 1;
 let totalPages = 1;
@@ -6,27 +7,43 @@ let currentInspectionData = null;
 let deleteTargetId = null;
 let deleteTargetContainerId = null;
 
-// Load statistics
-async function loadStats() {
-    try {
-        const resp = await fetch(`${API_BASE}/api/history/stats/summary`);
-        const data = await resp.json();
-        
-        document.getElementById('statInspections').textContent = data.total_inspections;
-        document.getElementById('statContainers').textContent = data.total_containers;
-        document.getElementById('statFrames').textContent = data.total_frames;
-        document.getElementById('statDetections').textContent = data.total_detections;
-        document.getElementById('statAlerts').textContent = data.alert_inspections;
-    } catch (e) {
-        console.error('Failed to load stats:', e);
-    }
+// ----- Helper: safe element access -----
+function safeGetElement(id) {
+    const el = document.getElementById(id);
+    if (!el) console.warn(`Element #${id} not found`);
+    return el;
 }
 
-// Load history list
+async function loadStats() {
+    try {
+        // Fetch all inspections (without pagination) – adjust page_size to a large number
+        const resp = await fetch(`${API_BASE}/api/history/?page_size=1000`);
+        const data = await resp.json();
+        const items = data.items || [];
+
+        const totalInspections = items.length;
+        const uniqueContainers = new Set(items.map(i => i.container_id)).size;
+        const totalFrames = items.reduce((sum, i) => sum + (i.frame_count || 0), 0);
+        const totalDetections = items.reduce((sum, i) => sum + (i.detection_count || 0), 0);
+        const alertCount = items.filter(i => i.status === 'alert').length;
+
+        safeGetElement('statInspections').textContent = totalInspections;
+        safeGetElement('statContainers').textContent = uniqueContainers;
+        safeGetElement('statFrames').textContent = totalFrames;
+        safeGetElement('statDetections').textContent = totalDetections;
+        safeGetElement('statAlerts').textContent = alertCount;
+    } catch (e) {
+        console.warn('Could not compute stats from list', e);
+    }
+}
+// ----- Load history list (with filters & pagination) -----
 async function loadHistory() {
-    const search = document.getElementById('searchInput').value;
-    const status = document.getElementById('statusFilter').value;
-    const stage = document.getElementById('stageFilter').value;
+    const historyTable = safeGetElement('historyTable');
+    if (!historyTable) return;
+
+    const search = safeGetElement('searchInput')?.value || '';
+    const status = safeGetElement('statusFilter')?.value || '';
+    const stage = safeGetElement('stageFilter')?.value || '';
 
     let url = `${API_BASE}/api/history/?page=${currentPage}&page_size=20`;
     if (search) url += `&search=${encodeURIComponent(search)}`;
@@ -40,15 +57,16 @@ async function loadHistory() {
         totalPages = Math.ceil(data.total / data.page_size);
         renderHistoryTable(data.items);
         updatePagination();
+        loadStats();  // refresh stats after list loads
     } catch (e) {
         console.error('Failed to load history:', e);
-        document.getElementById('historyTable').innerHTML = 
-            '<tr><td colspan="10" style="text-align:center;color:#f87171;">Failed to load history</td></tr>';
+        historyTable.innerHTML = '<tr><td colspan="11" style="text-align:center;color:#f87171;">Failed to load history</td></tr>';
     }
 }
 
 function renderHistoryTable(items) {
-    const tbody = document.getElementById('historyTable');
+    const tbody = safeGetElement('historyTable');
+    if (!tbody) return;
     tbody.innerHTML = '';
 
     if (items.length === 0) {
@@ -59,11 +77,11 @@ function renderHistoryTable(items) {
     items.forEach(item => {
         const tr = document.createElement('tr');
 
-        const statusBadge = item.status === 'alert' 
+        const statusBadge = item.status === 'alert'
             ? '<span class="badge badge-alert">Alert</span>'
             : '<span class="badge badge-ok">OK</span>';
 
-        const stageBadge = item.stage 
+        const stageBadge = item.stage
             ? `<span class="badge badge-stage">${item.stage}</span>`
             : '-';
 
@@ -81,62 +99,52 @@ function renderHistoryTable(items) {
             <td onclick="loadDetail(${item.id})" style="cursor:pointer;">${item.frame_count}</td>
             <td onclick="loadDetail(${item.id})" style="cursor:pointer;">${item.detection_count}</td>
             <td>
-                <button class="download-btn" onclick="event.stopPropagation(); downloadReport(${item.id}, '${item.container_id}')" title="Download PDF Report">📄</button>
-                <button class="delete-btn" onclick="event.stopPropagation(); showDeleteModal(${item.id}, '${item.container_id}')">🗑️</button>
+                <button class="download-btn" onclick="event.stopPropagation(); downloadReport(${item.id}, '${item.container_id}')" title="Download PDF Report">
+                    <i class="fas fa-file-pdf"></i>
+                </button>
+                <button class="delete-btn" onclick="event.stopPropagation(); showDeleteModal(${item.id}, '${item.container_id}')" title="Delete Entry">
+                    <i class="fas fa-trash-alt"></i>
+                </button>
             </td>
         `;
-
         tbody.appendChild(tr);
     });
 }
 
 function updatePagination() {
-    document.getElementById('pageInfo').textContent = `Page ${currentPage} of ${totalPages}`;
-    document.getElementById('btnPrevPage').disabled = currentPage <= 1;
-    document.getElementById('btnNextPage').disabled = currentPage >= totalPages;
+    const pageInfo = safeGetElement('pageInfo');
+    const btnPrev = safeGetElement('btnPrevPage');
+    const btnNext = safeGetElement('btnNextPage');
+    if (!pageInfo || !btnPrev || !btnNext) return;
+
+    pageInfo.textContent = `Page ${currentPage} of ${totalPages}`;
+    btnPrev.disabled = currentPage <= 1;
+    btnNext.disabled = currentPage >= totalPages;
 }
 
-function prevPage() {
-    if (currentPage > 1) {
-        currentPage--;
-        loadHistory();
-    }
-}
-
-function nextPage() {
-    if (currentPage < totalPages) {
-        currentPage++;
-        loadHistory();
-    }
-}
+function prevPage() { if (currentPage > 1) { currentPage--; loadHistory(); } }
+function nextPage() { if (currentPage < totalPages) { currentPage++; loadHistory(); } }
 
 function clearFilters() {
-    document.getElementById('searchInput').value = '';
-    document.getElementById('statusFilter').value = '';
-    document.getElementById('stageFilter').value = '';
+    safeGetElement('searchInput') && (safeGetElement('searchInput').value = '');
+    safeGetElement('statusFilter') && (safeGetElement('statusFilter').value = '');
+    safeGetElement('stageFilter') && (safeGetElement('stageFilter').value = '');
     currentPage = 1;
     loadHistory();
 }
 
-// Cleanup orphaned containers
+// ----- Cleanup orphaned containers -----
 async function cleanupOrphanedContainers() {
-    if (!confirm('Remove all containers that have no inspections?')) {
-        return;
-    }
-
+    if (!confirm('Remove all containers that have no inspections?')) return;
     try {
-        const resp = await fetch(`${API_BASE}/api/history/cleanup/orphaned-containers`, {
-            method: 'POST'
-        });
-
+        const resp = await fetch(`${API_BASE}/api/history/cleanup/orphaned-containers`, { method: 'POST' });
         if (resp.ok) {
             const data = await resp.json();
             showNotification(data.message, 'success');
             await loadStats();
             await loadHistory();
         } else {
-            const error = await resp.json();
-            throw new Error(error.detail || 'Cleanup failed');
+            throw new Error((await resp.json()).detail || 'Cleanup failed');
         }
     } catch (e) {
         console.error('Cleanup failed:', e);
@@ -144,292 +152,197 @@ async function cleanupOrphanedContainers() {
     }
 }
 
-// Load inspection detail
+// ----- Load inspection detail -----
 async function loadDetail(inspectionId) {
     currentInspectionId = inspectionId;
 
     try {
         const resp = await fetch(`${API_BASE}/api/history/${inspectionId}`);
         const data = await resp.json();
-
         currentInspectionData = data;
         renderDetail(data);
-        document.getElementById('listView').style.display = 'none';
-        document.getElementById('detailView').classList.add('active');
+
+        safeGetElement('listView').style.display = 'none';
+        safeGetElement('detailView').style.display = 'block';
     } catch (e) {
         console.error('Failed to load detail:', e);
         alert('Failed to load inspection details');
     }
 }
 
+// ----- Render detail view (adapted to original UI) -----
 function renderDetail(data) {
-    document.getElementById('detailTitle').textContent = 
-        `Inspection #${data.id} - ${data.container_id}`;
+    // Helper to set text content
+    const setText = (id, text) => {
+        const el = safeGetElement(id);
+        if (el) el.textContent = text ?? '-';
+    };
 
-    // Populate edit form
-    document.getElementById('editContainerId').value = data.container_id;
-    document.getElementById('editIsoType').value = data.iso_type || '';
+    // Header
+    setText('detailId', data.id);
+    setText('detailContainerIdHeader', data.container_id);
+    setText('detailTitle', `Inspection #${data.id} — ${data.container_id}`); // fallback
 
-    // Metadata grid
-    const metadataGrid = document.getElementById('metadataGrid');
-    metadataGrid.innerHTML = `
-        <div class="metadata-item">
-            <div class="metadata-label">Container ID</div>
-            <div class="metadata-value">${data.container_id}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">ISO Type</div>
-            <div class="metadata-value">${data.iso_type || 'Unknown'}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Timestamp</div>
-            <div class="metadata-value">${new Date(data.timestamp).toLocaleString()}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Stage</div>
-            <div class="metadata-value">${data.stage || 'None'}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Status</div>
-            <div class="metadata-value">
-                ${data.status === 'alert' 
-                    ? '<span class="badge badge-alert">Alert</span>' 
-                    : '<span class="badge badge-ok">OK</span>'}
-            </div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Risk Score</div>
-            <div class="metadata-value">${data.risk_score}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Contamination</div>
-            <div class="metadata-value">${data.contamination_index} / 9 (${data.contamination_label})</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">People Nearby</div>
-            <div class="metadata-value">${data.people_nearby ? 'Yes' : 'No'}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Door Status</div>
-            <div class="metadata-value">${data.door_status || 'Unknown'}</div>
-        </div>
-        <div class="metadata-item">
-            <div class="metadata-label">Anomalies</div>
-            <div class="metadata-value">${data.anomalies_present ? 'Yes' : 'No'}</div>
-        </div>
-    `;
+    // Editable fields
+    const containerInput = safeGetElement('editContainerId');
+    const isoInput = safeGetElement('editIsoType');
+    if (containerInput) containerInput.value = data.container_id || '';
+    if (isoInput) isoInput.value = data.iso_type || '';
 
-    if (data.scene_caption) {
-        metadataGrid.innerHTML += `
-            <div class="metadata-item" style="grid-column: 1 / -1;">
-                <div class="metadata-label">Scene Caption</div>
-                <div class="metadata-value">${data.scene_caption}</div>
-            </div>
-        `;
+    // Risk & contamination
+    setText('summaryRisk', data.risk_score);
+    const riskBar = safeGetElement('riskBarFill');
+    if (riskBar) {
+        const riskPercent = Math.min(data.risk_score, 100);
+        riskBar.style.width = riskPercent + '%';
+        if (riskPercent < 30) riskBar.style.backgroundColor = '#10b981';
+        else if (riskPercent < 70) riskBar.style.backgroundColor = '#f59e0b';
+        else riskBar.style.backgroundColor = '#ef4444';
     }
 
-    if (data.anomaly_summary) {
-        metadataGrid.innerHTML += `
-            <div class="metadata-item" style="grid-column: 1 / -1;">
-                <div class="metadata-label">Anomaly Summary</div>
-                <div class="metadata-value">${data.anomaly_summary}</div>
-            </div>
-        `;
+    setText('summaryContamination', `${data.contamination_index} / 9 (${data.contamination_label})`);
+    const contScale = document.querySelector('.contamination-scale');
+    if (contScale) {
+        contScale.innerHTML = '';
+        for (let i = 1; i <= 9; i++) {
+            const box = document.createElement('div');
+            box.style.cssText = `flex:1; height:8px; border-radius:4px; background: ${i <= data.contamination_index ? '#f59e0b' : 'var(--border-light)'};`;
+            contScale.appendChild(box);
+        }
     }
 
-    // Frames grid
-    const framesGrid = document.getElementById('framesGrid');
-    framesGrid.innerHTML = '';
+    setText('summaryPeople', data.people_nearby ? 'Yes' : 'No');
+    setText('summaryDoor', data.door_status || 'Unknown');
+
+    // Anomaly summary
+    const anomalyContainer = safeGetElement('anomalySummaryContainer');
+    const anomalyText = safeGetElement('anomalySummaryText');
+    if (anomalyContainer && anomalyText) {
+        if (data.anomaly_summary) {
+            anomalyText.textContent = data.anomaly_summary;
+            anomalyContainer.style.display = 'flex';
+        } else {
+            anomalyContainer.style.display = 'none';
+        }
+    }
+
+    // Frame thumbnails
+    const thumbnailsContainer = document.querySelector('.frame-thumbnails');
+    if (!thumbnailsContainer) return;
+    thumbnailsContainer.innerHTML = '';
 
     data.frames.forEach((frame, idx) => {
-        const frameCard = document.createElement('div');
-        frameCard.className = 'frame-card';
-
-        // Use overlay image if available, otherwise original
+        const thumb = document.createElement('div');
+        thumb.className = 'frame-thumb';
+        thumb.style.cssText = 'width:60px; height:60px; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; flex-shrink:0;';
+        thumb.setAttribute('data-frame-idx', idx);
         const imgPath = frame.overlay_path || frame.image_path;
         const imgUrl = `${API_BASE}/api/images/${imgPath}`;
+        thumb.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+        thumb.addEventListener('click', () => showFrame(idx));
+        thumbnailsContainer.appendChild(thumb);
+    });
 
-        let detectionsHtml = '';
-        if (frame.detections.length > 0) {
-            detectionsHtml = '<div class="detection-list">';
-            frame.detections.forEach(det => {
-                const conf = det.confidence ? ` (${(det.confidence * 100).toFixed(1)}%)` : '';
-                detectionsHtml += `<div class="detection-item">${det.label}${conf}</div>`;
-            });
-            detectionsHtml += '</div>';
-        } else {
-            detectionsHtml = '<div class="detection-list" style="color:var(--gray-soft);">No detections</div>';
-        }
+    // Show first frame
+    let currentFrameIndex = 0;
+    const mainImage = safeGetElement('currentFrameImage');
+    if (!mainImage) return;
 
-        frameCard.innerHTML = `
-            <img src="${imgUrl}" alt="Frame ${idx + 1}" />
-            <div class="frame-info">
-                <h4>Frame #${frame.id} - Contamination: ${frame.contamination_index}/9</h4>
-                <div style="margin-bottom: 6px;">
-                    ${frame.status === 'alert' 
-                        ? '<span class="badge badge-alert">Alert</span>' 
-                        : '<span class="badge badge-ok">OK</span>'}
-                </div>
-                ${detectionsHtml}
-            </div>
+    function showFrame(idx) {
+        currentFrameIndex = idx;
+        const frame = data.frames[idx];
+        const imgPath = frame.overlay_path || frame.image_path;
+        mainImage.src = `${API_BASE}/api/images/${imgPath}`;
+
+        // Highlight active thumbnail
+        document.querySelectorAll('.frame-thumb').forEach((el, i) => {
+            el.style.borderColor = i === idx ? 'var(--accent-blue)' : 'transparent';
+        });
+
+        // Update defect table for this frame
+        renderDetectionsForFrame(frame);
+    }
+
+    showFrame(0);
+}
+
+// ----- Populate defect table (original table format) -----
+function renderDetectionsForFrame(frame) {
+    const tbody = safeGetElement('defectTableBody');
+    if (!tbody) return;
+    tbody.innerHTML = '';
+
+    if (!frame.detections || frame.detections.length === 0) {
+        tbody.innerHTML = '<tr><td colspan="3" style="text-align:center; color:var(--text-secondary);">No detections in this frame</td></tr>';
+        return;
+    }
+
+    frame.detections.forEach(det => {
+        const tr = document.createElement('tr');
+        const severityClass = det.severity === 'high' ? 'badge badge-status-alert' : 'badge badge-muted';
+        tr.innerHTML = `
+            <td>${det.label}</td>
+            <td><span class="${severityClass}" style="border-radius:0;">${det.severity || 'N/A'}</span></td>
+            <td>${(det.confidence * 100).toFixed(1)}%</td>
         `;
-
-        framesGrid.appendChild(frameCard);
+        tbody.appendChild(tr);
     });
 }
 
 function backToList() {
-    document.getElementById('detailView').classList.remove('active');
-    document.getElementById('listView').style.display = 'block';
+    safeGetElement('listView').style.display = 'block';
+    safeGetElement('detailView').style.display = 'none';
     currentInspectionId = null;
     currentInspectionData = null;
 }
 
-// Delete functionality
+// ----- Delete modal functions -----
 function showDeleteModal(inspectionId, containerId) {
     deleteTargetId = inspectionId;
     deleteTargetContainerId = containerId;
-    
-    document.getElementById('deleteInspectionId').textContent = inspectionId;
-    document.getElementById('deleteContainerId').textContent = containerId;
-    document.getElementById('deleteModal').classList.add('active');
-    document.getElementById('confirmDeleteBtn').disabled = false;
+    safeGetElement('deleteInspectionId').textContent = inspectionId;
+    safeGetElement('deleteContainerId').textContent = containerId;
+    safeGetElement('deleteModal').style.display = 'flex';
+    safeGetElement('confirmDeleteBtn').disabled = false;
 }
 
 function closeDeleteModal() {
-    document.getElementById('deleteModal').classList.remove('active');
+    safeGetElement('deleteModal').style.display = 'none';
     deleteTargetId = null;
     deleteTargetContainerId = null;
 }
 
 async function confirmDelete() {
     if (!deleteTargetId) return;
-
-    const deleteBtn = document.getElementById('confirmDeleteBtn');
+    const deleteBtn = safeGetElement('confirmDeleteBtn');
     deleteBtn.disabled = true;
     deleteBtn.textContent = 'Deleting...';
 
     try {
-        const resp = await fetch(`${API_BASE}/api/history/${deleteTargetId}`, {
-            method: 'DELETE'
-        });
-
+        const resp = await fetch(`${API_BASE}/api/history/${deleteTargetId}`, { method: 'DELETE' });
         if (resp.ok) {
             closeDeleteModal();
-            
-            // If we're in detail view, go back to list
-            if (currentInspectionId === deleteTargetId) {
-                backToList();
-            }
-            
-            // Reload data
+            if (currentInspectionId === deleteTargetId) backToList();
             await loadHistory();
             await loadStats();
-            
-            // Show success message
             showNotification('Inspection deleted successfully', 'success');
         } else {
-            const error = await resp.json();
-            throw new Error(error.detail || 'Failed to delete inspection');
+            throw new Error((await resp.json()).detail || 'Failed to delete');
         }
     } catch (e) {
-        console.error('Failed to delete inspection:', e);
-        showNotification('Failed to delete inspection: ' + e.message, 'error');
+        console.error('Delete failed:', e);
+        showNotification('Delete failed: ' + e.message, 'error');
         deleteBtn.disabled = false;
         deleteBtn.textContent = 'Delete Permanently';
     }
 }
 
-// Simple notification system
-function showNotification(message, type = 'info') {
-    const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed;
-        top: 20px;
-        right: 20px;
-        padding: 12px 20px;
-        border-radius: 8px;
-        font-size: 14px;
-        font-weight: 500;
-        z-index: 2000;
-        animation: slideIn 0.3s ease;
-        ${type === 'success' ? 'background: #10b981; color: white;' : ''}
-        ${type === 'error' ? 'background: #ef4444; color: white;' : ''}
-        ${type === 'info' ? 'background: #3b82f6; color: white;' : ''}
-    `;
-    notification.textContent = message;
-    document.body.appendChild(notification);
-
-    setTimeout(() => {
-        notification.style.animation = 'slideOut 0.3s ease';
-        setTimeout(() => notification.remove(), 300);
-    }, 3000);
-}
-
-// Close modal on overlay click
-document.addEventListener('DOMContentLoaded', () => {
-    document.getElementById('deleteModal').addEventListener('click', (e) => {
-        if (e.target.id === 'deleteModal') {
-            closeDeleteModal();
-        }
-    });
-});
-
-// Download PDF report
-async function downloadReport(inspectionId, containerId) {
-    if (!inspectionId) {
-        showNotification('No inspection selected', 'error');
-        return;
-    }
-
-    try {
-        showNotification('Generating PDF report...', 'info');
-        
-        const url = `${API_BASE}/api/history/${inspectionId}/download-report`;
-        const response = await fetch(url);
-        
-        if (!response.ok) {
-            throw new Error('Failed to generate report');
-        }
-        
-        // Get the blob
-        const blob = await response.blob();
-        
-        // Create download link
-        const downloadUrl = window.URL.createObjectURL(blob);
-        const a = document.createElement('a');
-        a.href = downloadUrl;
-        
-        // Get filename from Content-Disposition header or create one
-        const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = `Inspection_Report_${containerId}_${inspectionId}.pdf`;
-        
-        if (contentDisposition) {
-            const filenameMatch = contentDisposition.match(/filename="?(.+)"?/i);
-            if (filenameMatch) {
-                filename = filenameMatch[1];
-            }
-        }
-        
-        a.download = filename;
-        document.body.appendChild(a);
-        a.click();
-        document.body.removeChild(a);
-        window.URL.revokeObjectURL(downloadUrl);
-        
-        showNotification('Report downloaded successfully', 'success');
-    } catch (e) {
-        console.error('Failed to download report:', e);
-        showNotification('Failed to download report: ' + e.message, 'error');
-    }
-}
-
-// Metadata editing
+// ----- Metadata save (inline editing) -----
 async function saveMetadata() {
     if (!currentInspectionId) return;
 
-    const containerId = document.getElementById('editContainerId').value.trim();
-    const isoType = document.getElementById('editIsoType').value.trim();
+    const containerId = safeGetElement('editContainerId')?.value.trim();
+    const isoType = safeGetElement('editIsoType')?.value.trim();
 
     if (!containerId) {
         alert('Container ID is required');
@@ -440,16 +353,14 @@ async function saveMetadata() {
         const resp = await fetch(`${API_BASE}/api/history/${currentInspectionId}/metadata`, {
             method: 'PATCH',
             headers: { 'Content-Type': 'application/json' },
-            body: JSON.stringify({
-                container_id: containerId,
-                iso_type: isoType || null
-            })
+            body: JSON.stringify({ container_id: containerId, iso_type: isoType || null })
         });
 
         if (resp.ok) {
             alert('Metadata updated successfully');
-            loadDetail(currentInspectionId); // Reload
-            loadStats(); // Refresh stats
+            await loadDetail(currentInspectionId);
+            await loadHistory();  // refresh list
+            await loadStats();
         } else {
             const error = await resp.json();
             alert('Failed to update: ' + (error.detail || 'Unknown error'));
@@ -460,14 +371,72 @@ async function saveMetadata() {
     }
 }
 
-function cancelEdit() {
-    if (currentInspectionId) {
-        loadDetail(currentInspectionId); // Reload to reset form
+// ----- Download PDF report -----
+async function downloadReport(inspectionId, containerId) {
+    if (!inspectionId) {
+        showNotification('No inspection selected', 'error');
+        return;
+    }
+
+    try {
+        showNotification('Generating PDF report...', 'info');
+        const url = `${API_BASE}/api/history/${inspectionId}/download-report`;
+        const response = await fetch(url);
+        if (!response.ok) throw new Error('Failed to generate report');
+
+        const blob = await response.blob();
+        const downloadUrl = window.URL.createObjectURL(blob);
+        const a = document.createElement('a');
+        a.href = downloadUrl;
+        const contentDisposition = response.headers.get('Content-Disposition');
+        let filename = `Inspection_Report_${containerId}_${inspectionId}.pdf`;
+        if (contentDisposition) {
+            const match = contentDisposition.match(/filename="?(.+)"?/i);
+            if (match) filename = match[1];
+        }
+        a.download = filename;
+        document.body.appendChild(a);
+        a.click();
+        document.body.removeChild(a);
+        window.URL.revokeObjectURL(downloadUrl);
+        showNotification('Report downloaded successfully', 'success');
+    } catch (e) {
+        console.error('Download failed:', e);
+        showNotification('Download failed: ' + e.message, 'error');
     }
 }
 
-// Initialize
-window.addEventListener('DOMContentLoaded', () => {
-    loadStats();
+// ----- Notification system -----
+function showNotification(message, type = 'info') {
+    const notification = document.createElement('div');
+    notification.style.cssText = `
+        position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px;
+        font-size: 14px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease;
+        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
+        color: white;
+    `;
+    notification.textContent = message;
+    document.body.appendChild(notification);
+    setTimeout(() => {
+        notification.style.animation = 'slideOut 0.3s ease';
+        setTimeout(() => notification.remove(), 300);
+    }, 3000);
+}
+
+// ----- Initialization -----
+function initHistoryPage() {
+    console.log('Initializing History page...');
+    // Ensure list view visible, detail hidden
+    safeGetElement('listView') && (safeGetElement('listView').style.display = 'block');
+    safeGetElement('detailView') && (safeGetElement('detailView').style.display = 'none');
+
+    // Modal click‑out close
+    const deleteModal = safeGetElement('deleteModal');
+    if (deleteModal) deleteModal.onclick = (e) => { if (e.target.id === 'deleteModal') closeDeleteModal(); };
+
+    // Load initial data
     loadHistory();
-});
+}
+
+// Make function globally available
+window.initHistoryPage = initHistoryPage;
