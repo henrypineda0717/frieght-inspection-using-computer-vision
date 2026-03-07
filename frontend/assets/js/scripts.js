@@ -1,5 +1,5 @@
-// scripts.js – Full corrected version with video summary updates every 2 seconds
-// and dynamic recent files table. Save button now properly enabled after analysis.
+// scripts.js – Full corrected version with video summary updates every 2 seconds,
+// dynamic recent files table, and download report for videos including a frame.
 
 window.addEventListener('DOMContentLoaded', () => {
   const API_BASE = "http://localhost:8001";
@@ -20,7 +20,6 @@ window.addEventListener('DOMContentLoaded', () => {
   const btnStop = getElement('btnStop');
   const btnAnalyze = getElement('btnAnalyze');
   const btnDownloadReport = getElement('btnDownloadReport');
-  // Use let so we can reassign if needed (though we won't clone anymore)
   let btnSaveToDatabase = getElement('btnSaveToDatabase');
   const btnAuto = getElement('btnAuto');
   const backendStatus = getElement('backendStatus');
@@ -119,6 +118,7 @@ window.addEventListener('DOMContentLoaded', () => {
   let currentSessionId = null;
   let pollingInterval = null;
   let currentVideoFile = null;
+  let currentVideoFrameBlob = null; // For storing the first frame of the video
 
   // ---------- Helper functions ----------
   function updateBackendStatus(text, ok = false) {
@@ -148,44 +148,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return "#d1d5db";
   }
 
-  function setStage(stage) {
-    currentStage = stage;
-    if (btnStageNone && btnStagePre && btnStagePost) {
-      btnStageNone.classList.remove('btn-pill-active');
-      btnStagePre.classList.remove('btn-pill-active');
-      btnStagePost.classList.remove('btn-pill-active');
-      if (stage === 'pre') {
-        btnStagePre.classList.add('btn-pill-active');
-        if (stageLabel) stageLabel.textContent = "Stage: Pre wash";
-      } else if (stage === 'post') {
-        btnStagePost.classList.add('btn-pill-active');
-        if (stageLabel) stageLabel.textContent = "Stage: Post wash";
-      } else {
-        btnStageNone.classList.add('btn-pill-active');
-        if (stageLabel) stageLabel.textContent = "Stage: none";
-      }
-    }
-  }
-
-  function setView(view) {
-    currentView = view;
-    if (btnViewExterior && btnViewInterior && viewLabel) {
-      btnViewExterior.classList.remove('btn-pill-active');
-      btnViewInterior.classList.remove('btn-pill-active');
-      if (view === 'exterior') {
-        btnViewExterior.classList.add('btn-pill-active');
-        viewLabel.textContent = 'View: Exterior';
-      } else if (view === 'interior') {
-        btnViewInterior.classList.add('btn-pill-active');
-        viewLabel.textContent = 'View: Interior';
-      } else {
-        viewLabel.textContent = 'View: none';
-      }
-    }
-    if (currentSessionId && view) {
-      sendSessionCommand('set-view-type', { view_type: view });
-    }
-  }
+  // ---------- UI update functions (must be defined before they are used) ----------
 
   function updateContaminationScale(level) {
     const n = Math.min(9, Math.max(1, level || 1));
@@ -391,6 +354,51 @@ window.addEventListener('DOMContentLoaded', () => {
     updateContaminationScale(data.contamination_index || 1);
   }
 
+  // ---------- Reset dashboard (for exterior view) ----------
+  function resetDashboard() {
+    // Pie chart – replace with a simple placeholder
+    const piePlaceholder = document.querySelector('.pie-chart-placeholder');
+    if (piePlaceholder) {
+      piePlaceholder.innerHTML = '<div style="width:120px; height:120px; border-radius:50%; background:#e0e0e0; display:flex; align-items:center; justify-content:center; margin:0 auto;">No data</div>';
+    }
+
+    // Reset stats numbers
+    if (totalDefectsSpan) totalDefectsSpan.textContent = '0';
+    if (cleanlinessSpan) cleanlinessSpan.textContent = '0%';
+    if (structuralIssuesSpan) structuralIssuesSpan.textContent = '0';
+    if (contaminationScore) contaminationScore.textContent = '—';
+
+    // Reset contamination scale
+    updateContaminationScale(1);
+
+    // Reset inspection table bars
+    const rows = document.querySelectorAll('#inspectionTableBody tr');
+    rows.forEach(row => {
+      const preBar = row.cells[1]?.querySelector('.severity-slim-bar');
+      const postBar = row.cells[2]?.querySelector('.severity-slim-bar');
+      if (preBar) {
+        preBar.style.width = '0%';
+        preBar.style.backgroundColor = '#b9c2d0';
+      }
+      if (postBar) {
+        postBar.style.width = '0%';
+        postBar.style.backgroundColor = '#b9c2d0';
+      }
+    });
+
+    // Reset summary badges (keep container ID)
+    if (summaryStatusBadge) summaryStatusBadge.innerHTML = '<i class="fas fa-check-circle"></i> Status: ';
+    if (summaryStageBadge) summaryStageBadge.innerHTML = '<i class="fas fa-tint"></i> Stage: ';
+    if (summaryPeopleBadge) summaryPeopleBadge.innerHTML = '<i class="fas fa-user"></i> Person: ';
+    if (summaryDoorBadge) summaryDoorBadge.innerHTML = '<i class="fas fa-door-open"></i> Doors: ';
+    if (summaryAnomBadge) summaryAnomBadge.innerHTML = '<i class="fas fa-exclamation-triangle"></i> Anomalies: ';
+
+    // Reset contamination level text
+    if (contScaleValueText) contScaleValueText.textContent = '—';
+
+    // Container ID is intentionally left untouched
+  }
+
   // ---------- Drawing functions (only for images) ----------
   function drawDetection(ctx, det, idx, options = {}) {
     if (!ctx) return;
@@ -503,65 +511,44 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // ---------- Analysis for images ----------
-  async function analyzeCurrentFrame() {
-    if (analyzing) return;
-    const isImage = video.dataset.isImage === 'true';
-    if (!isImage) return;
-    if (!currentImageObject) return;
-
-    analyzing = true;
-    if (btnAnalyze) btnAnalyze.disabled = true;
-    updateBackendStatus("analyzing...", true);
-
-    try {
-      const snapCanvas = document.createElement("canvas");
-      snapCanvas.width = currentImageObject.width;
-      snapCanvas.height = currentImageObject.height;
-      const sctx = snapCanvas.getContext("2d");
-      sctx.drawImage(currentImageObject, 0, 0);
-      const blob = await new Promise((resolve) => snapCanvas.toBlob(resolve, "image/jpeg", 0.9));
-      if (!blob) throw new Error("Failed to create image blob");
-
-      const fd = new FormData();
-      fd.append("image", blob, "frame.jpg");
-      const damageSensitivity = damageSensitivitySelect ? damageSensitivitySelect.value : "medium";
-      const spotMode = spotModeSelect ? spotModeSelect.value : "auto";
-
-      let url = `${API_BASE}/api/analyze/?auto_save=false&damage_sensitivity=${encodeURIComponent(damageSensitivity)}&spot_mode=${encodeURIComponent(spotMode)}`;
-      if (currentStage) url += `&inspection_stage=${encodeURIComponent(currentStage)}`;
-      if (currentView) url += `&view_type=${encodeURIComponent(currentView)}`;
-
-      const resp = await fetch(url, { method: "POST", body: fd });
-      if (!resp.ok) throw new Error(`Backend error: ${resp.status}`);
-      const data = await resp.json();
-
-      lastAnalysisResult = data;
-      lastDetections = data.detections || [];
-
-      // Enable both buttons
-      if (btnSaveToDatabase) {
-        btnSaveToDatabase.disabled = false;
-        btnSaveToDatabase.removeAttribute('disabled');
-        console.log("Save button enabled");
+  // ---------- State management ----------
+  function setStage(stage) {
+    currentStage = stage;
+    if (btnStageNone && btnStagePre && btnStagePost) {
+      btnStageNone.classList.remove('active');
+      btnStagePre.classList.remove('active');
+      btnStagePost.classList.remove('active');
+      if (stage === 'pre') {
+        btnStagePre.classList.add('active');
+        if (stageLabel) stageLabel.textContent = "Stage: Pre wash";
+      } else if (stage === 'post') {
+        btnStagePost.classList.add('active');
+        if (stageLabel) stageLabel.textContent = "Stage: Post wash";
+      } else {
+        btnStageNone.classList.add('active');
+        if (stageLabel) stageLabel.textContent = "Stage: none";
       }
-      if (btnDownloadReport) {
-        btnDownloadReport.disabled = false;
-        btnDownloadReport.removeAttribute('disabled');
-        console.log("Download button enabled");
-      }
+    }
+  }
 
-      drawDetections(lastDetections);
-      updateSummaryFromResponse(data);
-      updateInspectionTable(lastDetections);
-      updateStatsAndPie(lastDetections, data.contamination_index || 1);
-      updateBackendStatus("Analysis complete", true);
-    } catch (err) {
-      console.error('❌ Analysis failed:', err);
-      updateBackendStatus("Analysis error", false);
-    } finally {
-      analyzing = false;
-      if (btnAnalyze) btnAnalyze.disabled = false;
+  function setView(view) {
+    currentView = view;
+    if (btnViewExterior && btnViewInterior && viewLabel) {
+      btnViewExterior.classList.remove('active');
+      btnViewInterior.classList.remove('active');
+      if (view === 'exterior') {
+        btnViewExterior.classList.add('active');
+        viewLabel.textContent = 'View: Exterior';
+        resetDashboard(); // Clear dashboard for exterior view
+      } else if (view === 'interior') {
+        btnViewInterior.classList.add('active');
+        viewLabel.textContent = 'View: Interior';
+      } else {
+        viewLabel.textContent = 'View: none';
+      }
+    }
+    if (currentSessionId && view) {
+      sendSessionCommand('set-view-type', { view_type: view });
     }
   }
 
@@ -599,6 +586,7 @@ window.addEventListener('DOMContentLoaded', () => {
       if (btnStop) btnStop.disabled = false;
       if (btnPause) btnPause.disabled = false;
       if (btnPlay) btnPlay.disabled = false;
+      if (btnDownloadReport) btnDownloadReport.disabled = false; // Enable download button
       if (btnAnalyze) btnAnalyze.disabled = true;
 
       startPollingDetections();
@@ -631,6 +619,12 @@ window.addEventListener('DOMContentLoaded', () => {
     updateBackendStatus('Session stopped', false);
     if (btnDownloadReport) btnDownloadReport.disabled = true;
     if (btnSaveToDatabase) btnSaveToDatabase.disabled = true;
+    currentVideoFrameBlob = null; // Clear captured frame
+
+    // Re-enable Analyze button if a file is still selected
+    if (currentVideoFile && btnAnalyze) {
+      btnAnalyze.disabled = false;
+    }
   }
 
   async function sendSessionCommand(command, payload = {}) {
@@ -683,6 +677,65 @@ window.addEventListener('DOMContentLoaded', () => {
     }
   }
 
+  // ---------- Analysis for images ----------
+  async function analyzeCurrentFrame() {
+    if (analyzing) return;
+    const isImage = video.dataset.isImage === 'true';
+    if (!isImage) return;
+    if (!currentImageObject) return;
+
+    analyzing = true;
+    if (btnAnalyze) btnAnalyze.disabled = true;
+    updateBackendStatus("analyzing...", true);
+
+    try {
+      const snapCanvas = document.createElement("canvas");
+      snapCanvas.width = currentImageObject.width;
+      snapCanvas.height = currentImageObject.height;
+      const sctx = snapCanvas.getContext("2d");
+      sctx.drawImage(currentImageObject, 0, 0);
+      const blob = await new Promise((resolve) => snapCanvas.toBlob(resolve, "image/jpeg", 0.9));
+      if (!blob) throw new Error("Failed to create image blob");
+
+      const fd = new FormData();
+      fd.append("image", blob, "frame.jpg");
+      const damageSensitivity = damageSensitivitySelect ? damageSensitivitySelect.value : "medium";
+      const spotMode = spotModeSelect ? spotModeSelect.value : "auto";
+
+      let url = `${API_BASE}/api/analyze/?auto_save=false&damage_sensitivity=${encodeURIComponent(damageSensitivity)}&spot_mode=${encodeURIComponent(spotMode)}`;
+      if (currentStage) url += `&inspection_stage=${encodeURIComponent(currentStage)}`;
+      if (currentView) url += `&view_type=${encodeURIComponent(currentView)}`;
+
+      const resp = await fetch(url, { method: "POST", body: fd });
+      if (!resp.ok) throw new Error(`Backend error: ${resp.status}`);
+      const data = await resp.json();
+
+      lastAnalysisResult = data;
+      lastDetections = data.detections || [];
+
+      if (btnSaveToDatabase) {
+        btnSaveToDatabase.disabled = false;
+        btnSaveToDatabase.removeAttribute('disabled');
+      }
+      if (btnDownloadReport) {
+        btnDownloadReport.disabled = false;
+        btnDownloadReport.removeAttribute('disabled');
+      }
+
+      drawDetections(lastDetections);
+      updateSummaryFromResponse(data);
+      updateInspectionTable(lastDetections);
+      updateStatsAndPie(lastDetections, data.contamination_index || 1);
+      updateBackendStatus("Analysis complete", true);
+    } catch (err) {
+      console.error('❌ Analysis failed:', err);
+      updateBackendStatus("Analysis error", false);
+    } finally {
+      analyzing = false;
+      if (btnAnalyze) btnAnalyze.disabled = false;
+    }
+  }
+
   // ---------- File input handler ----------
   if (fileInput) {
     fileInput.addEventListener('change', () => {
@@ -702,6 +755,7 @@ window.addEventListener('DOMContentLoaded', () => {
         canvas.style.display = 'block';
         mjpegImg.style.display = 'none';
         currentVideoFile = null;
+        currentVideoFrameBlob = null;
         const url = URL.createObjectURL(file);
         currentImageData = file;
         const img = new Image();
@@ -730,11 +784,24 @@ window.addEventListener('DOMContentLoaded', () => {
         };
         img.src = url;
       } else if (fileType.startsWith('video/')) {
-        // Video mode: show first frame on canvas
+        // Video mode: show first frame on canvas and capture it for the report
         video.style.display = 'none';
         canvas.style.display = 'block';
         mjpegImg.style.display = 'none';
         ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+        currentVideoFile = file;
+        currentImageData = null;
+        currentImageObject = null;
+        currentVideoFrameBlob = null; // Reset previous blob
+        lastDetections = [];
+        lastAnalysisResult = null;
+        updateInspectionTable([]);
+        updateStatsAndPie([], 1);
+        updateSummaryFromResponse({});
+        video.dataset.isImage = 'false';
+        setView(null);
+        updateBackendStatus('Video ready. Select options and click Analyze.', true);
 
         const tempVideo = document.createElement('video');
         tempVideo.preload = 'auto';
@@ -759,23 +826,22 @@ window.addEventListener('DOMContentLoaded', () => {
             canvas.width = containerWidth;
             canvas.height = containerHeight;
             ctx.drawImage(tempVideo, 0, 0, videoWidth, videoHeight, offsetX, offsetY, drawWidth, drawHeight);
+            // Capture this frame for the PDF report
+            canvas.toBlob((blob) => {
+              currentVideoFrameBlob = blob;
+            }, 'image/jpeg', 0.9);
           }
           URL.revokeObjectURL(tempVideo.src);
           tempVideo.remove();
         });
-
-        currentVideoFile = file;
-        currentImageData = null;
-        currentImageObject = null;
-        lastDetections = [];
-        lastAnalysisResult = null;
-        updateInspectionTable([]);
-        updateStatsAndPie([], 1);
-        updateSummaryFromResponse({});
-        if (btnAnalyze) btnAnalyze.disabled = false;
-        video.dataset.isImage = 'false';
-        setView(null);
-        updateBackendStatus('Video ready. Select options and click Analyze.', true);
+        // Handle errors
+        tempVideo.addEventListener('error', (e) => {
+          console.error('Video failed to load:', e);
+          updateBackendStatus('Video format not supported', false);
+          alert('This video format is not supported. Please try another file.');
+          URL.revokeObjectURL(tempVideo.src);
+          tempVideo.remove();
+        });
       } else {
         alert('Unsupported file type. Please select an image or video.');
       }
@@ -828,22 +894,47 @@ window.addEventListener('DOMContentLoaded', () => {
   if (btnViewExterior) btnViewExterior.addEventListener('click', () => setView('exterior'));
   if (btnViewInterior) btnViewInterior.addEventListener('click', () => setView('interior'));
 
-  // Download report
+  // Download report (works for both images and videos)
   if (btnDownloadReport) {
     btnDownloadReport.addEventListener('click', async () => {
-      if (!lastAnalysisResult) {
-        alert('No analysis data available. Please analyze an image first.');
+      let reportData = null;
+      let imageBlob = null;
+
+      if (lastAnalysisResult) {
+        // Image analysis case
+        reportData = lastAnalysisResult;
+        const isImage = video.dataset.isImage === 'true';
+        if (isImage && canvas.width > 0) {
+          imageBlob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
+        }
+      } else if (lastDetections.length > 0 && currentSessionId) {
+        // Video session case
+        reportData = {
+          container_id: summaryContainerId ? summaryContainerId.textContent : 'UNKNOWN',
+          detections: lastDetections,
+          summary: {
+            contamination_index: contaminationScore ? contaminationScore.textContent.replace('/9', '') : 1,
+            total_defects: totalDefectsSpan ? totalDefectsSpan.textContent : 0,
+            status: summaryStatusBadge ? (summaryStatusBadge.textContent.includes('ALERT') ? 'alert' : 'ok') : 'ok',
+            inspection_stage: currentStage,
+            view_type: currentView
+          }
+        };
+        // Include the captured first frame if available
+        if (currentVideoFrameBlob) {
+          imageBlob = currentVideoFrameBlob;
+        }
+      } else {
+        alert('No analysis data available. Please analyze an image or start a video session first.');
         return;
       }
+
       try {
         updateBackendStatus('Generating PDF report...', true);
         const formData = new FormData();
-        formData.append('analysis_data', JSON.stringify(lastAnalysisResult));
-        const isImage = video.dataset.isImage === 'true';
-        if (isImage && canvas.width > 0) {
-          const blob = await new Promise(resolve => canvas.toBlob(resolve, 'image/jpeg', 0.95));
-          if (blob) formData.append('image', blob, 'analyzed_image.jpg');
-        }
+        formData.append('analysis_data', JSON.stringify(reportData));
+        if (imageBlob) formData.append('image', imageBlob, 'frame.jpg');
+
         const response = await fetch(`${API_BASE}/api/analyze/generate-report`, { method: 'POST', body: formData });
         if (!response.ok) throw new Error('Failed to generate report');
         const pdfBlob = await response.blob();
@@ -851,7 +942,7 @@ window.addEventListener('DOMContentLoaded', () => {
         const a = document.createElement('a');
         a.href = downloadUrl;
         const contentDisposition = response.headers.get('Content-Disposition');
-        let filename = `Live_Analysis_Report_${lastAnalysisResult.container_id || 'UNKNOWN'}_${Date.now()}.pdf`;
+        let filename = `Inspection_Report_${reportData.container_id || 'UNKNOWN'}_${Date.now()}.pdf`;
         if (contentDisposition) {
           const match = contentDisposition.match(/filename="?(.+)"?/i);
           if (match) filename = match[1];
@@ -870,7 +961,7 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Save to database (single, correct handler)
+  // Save to database
   if (btnSaveToDatabase) {
     btnSaveToDatabase.addEventListener('click', async () => {
       if (!lastAnalysisResult || !currentImageData) {
@@ -952,7 +1043,7 @@ window.addEventListener('DOMContentLoaded', () => {
     if (!tbody) return;
 
     try {
-      const response = await fetch(`${API_BASE}/api/history/?page=1&page_size=4`);
+      const response = await fetch(`${API_BASE}/api/history/?page=1&page_size=3`);
       if (!response.ok) throw new Error('Failed to fetch recent inspections');
       const data = await response.json();
       const inspections = data.items || [];
@@ -960,12 +1051,12 @@ window.addEventListener('DOMContentLoaded', () => {
       tbody.innerHTML = '';
 
       if (inspections.length === 0) {
-        for (let i = 0; i < 4; i++) {
+        for (let i = 0; i < 3; i++) {
           tbody.appendChild(createPlaceholderRow());
         }
       } else {
         inspections.forEach(insp => tbody.appendChild(createInspectionRow(insp)));
-        for (let i = inspections.length; i < 4; i++) {
+        for (let i = inspections.length; i < 3; i++) {
           tbody.appendChild(createPlaceholderRow());
         }
       }

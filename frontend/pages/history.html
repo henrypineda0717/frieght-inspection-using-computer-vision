@@ -1,8 +1,8 @@
 <!-- History page content fragment -->
 <!-- history.html – content fragment -->
-<div class="page main-content" style="max-width: 1600px; margin: 0 auto;">
-    <!-- Statistics Dashboard -->
-     <script>
+<div class="page main-content history-page">
+
+    <script>
   (function() {
     // If we are not inside the full layout (sidebar missing), redirect
     if (!document.getElementById('sidebar')) {
@@ -89,17 +89,17 @@
 
     </div>
     
-    <!-- Detail View -->
-<div class="card detail-view active" id="detailView" style="background: transparent; box-shadow: none; padding: 0;">
-    <div class="detail-header" style="display: flex; align-items: center; gap: 16px; margin-bottom: 24px;">
+<!-- Detail View -->
+<div class="card detail-view active" id="detailView">
+<div class="detail-header">
         <!-- Icon-only Back Action -->
         <a href="javascript:void(0)" class="back-icon-link" onclick="backToList()" title="Back to Fleet">
             <i class="fas fa-arrow-left"></i>
         </a>
 
         <!-- ID Information -->
-        <h2 id="detailTitle" class="summary-title-main" style="margin: 0;">
-            Inspection #37 — <span style="color: var(--accent-blue); font-weight: 800;">TCLU 449L5L</span>
+        <h2 id="detailTitle" class="summary-title-main">
+            Inspection #37 — <span class="detail-highlight">TCLU 449L5L</span>
         </h2>
     </div>
 
@@ -108,8 +108,9 @@
         <div class="grid-col col-48 left-stack">
             <div class="industrial-block image-section">
                 <div class="image-container-bg">
-                    <img id="detailMainImage" src="placeholder.jpg" alt="Container Frame">
+                    <img id="currentFrameImage" src="data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==" alt="Container Frame" role="presentation">
                 </div>
+                <div class="frame-thumbnails" aria-label="Frame thumbnails"></div>
             </div>
             
             <div class="industrial-block metadata-section">
@@ -125,10 +126,10 @@
                     </div>
                 </div>
                 <div class="button-row">
-                    <button class="btn btn-primary action-flex" style="border-radius: 0;" onclick="saveMetadata()">
+                    <button class="btn btn-primary action-flex" onclick="saveMetadata()">
                         <i class="fas fa-save"></i> Update Records
                     </button>
-                    <button class="btn btn-secondary action-flex" style="border-radius: 0;" onclick="downloadReport()">
+                    <button class="btn btn-secondary action-flex" onclick="downloadReport()">
                         <i class="fas fa-file-export"></i> Export PDF
                     </button>
                 </div>
@@ -150,8 +151,8 @@
                             </tr>
                         </thead>
                         <tbody id="defectTableBody">
-                            <tr><td>#01</td><td>Dent</td><td><span class="badge badge-status-alert" style="border-radius:0;">High</span></td><td>92.4%</td></tr>
-                            <tr><td>#02</td><td>Rust</td><td><span class="badge badge-muted" style="border-radius:0;">Low</span></td><td>85.1%</td></tr>
+                            <tr><td>#01</td><td>Dent</td><td><span class="badge badge-status-alert">High</span></td><td>92.4%</td></tr>
+                            <tr><td>#02</td><td>Rust</td><td><span class="badge badge-muted">Low</span></td><td>85.1%</td></tr>
                         </tbody>
                     </table>
                 </div>
@@ -174,11 +175,11 @@
             </div>
             <div class="modal-body">
                 <p>Are you sure you want to delete this inspection?</p>
-                <p style="margin-top: 8px;">
+                <p class="modal-detail">
                     <strong>Inspection ID:</strong> <span id="deleteInspectionId">-</span><br>
                     <strong>Container ID:</strong> <span id="deleteContainerId">-</span>
                 </p>
-                <p style="margin-top: 12px; color: var(--accent-red);">
+                <p class="modal-warning">
                     This action cannot be undone. All frames, detections, and associated data will be permanently removed.
                 </p>
             </div>

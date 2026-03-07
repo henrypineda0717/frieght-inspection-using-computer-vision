@@ -81,21 +81,18 @@ class RealtimeVideoProcessor:
         self.pause_event = threading.Event()      # Global pause for all threads
         self.threads = []
         
-        # Performance tracking
         self.fps_tracker = deque(maxlen=30)
         self.last_fps_log = time.time()
         
-        # Tracking state
         self.current_detections = []         
         self._detections_lock = threading.Lock()
         self.tracker = None                   
         self.tracked_id_to_last_det = {}       
         
-        # Class ID mapping (populate from coordinator if needed)
         self._id_to_class = self._get_class_mapping()
 
         # Stable container ID extraction
-        self.container_id_history = deque(maxlen=10)   # last 10 frames' IDs
+        self.container_id_history = deque(maxlen=10)   
         self.stable_container_id = "UNKNOWN"
         
         logger.info(

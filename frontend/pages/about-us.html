@@ -1,164 +1,4 @@
-<!-- About Us fragment – compact, product focused -->
-<style>
-    /* About page styles – add to your global CSS or keep here */
-    .about-page {
-        max-width: 1200px;
-        margin: 0 auto;
-    }
-    .about-header {
-        margin-bottom: 16px;
-    }
-    .about-header h1 {
-        font-size: 1.8rem;
-        font-weight: 700;
-        color: var(--accent-blue);
-        margin-bottom: 2px;
-    }
-    .about-header .subhead {
-        font-size: 0.9rem;
-        color: var(--text-muted);
-    }
-    .about-description {
-        font-size: 0.9rem;
-        color: var(--text-secondary);
-        line-height: 1.5;
-        max-width: 700px;
-        margin-bottom: 20px;
-    }
-    .model-section {
-        margin-bottom: 24px;
-    }
-    .model-section h3 {
-        font-size: 1rem;
-        font-weight: 600;
-        margin-bottom: 12px;
-        display: flex;
-        align-items: center;
-        gap: 6px;
-    }
-    .model-visual {
-        background: #1e2a3a;
-        border-radius: var(--radius-md);
-        padding: 16px;
-        border: var(--border-width) solid var(--border-light);
-        display: flex;
-        flex-direction: column;
-        align-items: center;
-    }
-    .container-mock {
-        position: relative;
-        width: 100%;
-        max-width: 800px;
-        aspect-ratio: 2.4 / 1;
-        background: #2d3a4a;
-        border-radius: 6px;
-        overflow: hidden;
-        box-shadow: 0 6px 14px rgba(0,0,0,0.25);
-        margin-bottom: 12px;
-    }
-    .container-mock img {
-        width: 100%;
-        height: 100%;
-        object-fit: cover;
-        display: block;
-    }
-    .detection-overlay {
-        position: absolute;
-        top: 0;
-        left: 0;
-        width: 100%;
-        height: 100%;
-        pointer-events: none;
-    }
-    .detection-box {
-        position: absolute;
-        border: 2.5px solid;
-        border-radius: 4px;
-        background: rgba(0,0,0,0.1);
-        display: flex;
-        align-items: flex-end;
-        justify-content: flex-end;
-        font-size: 0.7rem;
-        font-weight: 600;
-        color: white;
-        text-shadow: 1px 1px 2px black;
-        padding: 1px 3px;
-        box-shadow: 0 0 0 1px rgba(255,255,255,0.2) inset;
-    }
-    .box-label {
-        background: rgba(0,0,0,0.7);
-        border-radius: 4px;
-        padding: 2px 6px;
-        font-size: 0.65rem;
-        letter-spacing: 0.3px;
-    }
-    .damage-box { border-color: #ef4444; }
-    .contamination-box { border-color: #f59e0b; }
-    .rust-box { border-color: #b45309; }
-    .hole-box { border-color: #8b5cf6; }
-    .model-caption {
-        font-size: 0.8rem;
-        color: var(--text-secondary);
-        text-align: center;
-        max-width: 600px;
-        margin-top: 6px;
-    }
-    .model-badge {
-        background: var(--accent-blue);
-        color: white;
-        border-radius: var(--radius-full);
-        padding: 4px 14px;
-        font-size: 0.7rem;
-        font-weight: 500;
-        margin-top: 10px;
-    }
-    .contact-bar {
-        background: var(--bg-secondary);
-        border-radius: var(--radius-md);
-        padding: 16px 20px;
-        display: flex;
-        justify-content: space-between;
-        align-items: center;
-        flex-wrap: wrap;
-        gap: 14px;
-        border: var(--border-width) solid var(--border-light);
-    }
-    .contact-info-compact {
-        display: flex;
-        gap: 20px;
-        flex-wrap: wrap;
-    }
-    .contact-item {
-        display: flex;
-        align-items: center;
-        gap: 6px;
-        font-size: 0.8rem;
-        color: var(--text-primary);
-    }
-    .contact-item i {
-        color: var(--accent-blue);
-        width: 16px;
-    }
-    .btn-outline {
-        background: transparent;
-        border: var(--border-width) solid var(--accent-blue);
-        color: var(--accent-blue);
-        padding: 6px 14px;
-        border-radius: var(--radius-md);
-        font-size: 0.8rem;
-        font-weight: 500;
-        transition: var(--transition);
-    }
-    .btn-outline:hover {
-        background: var(--accent-blue);
-        color: white;
-    }
-    @media (max-width: 700px) {
-        .contact-bar { flex-direction: column; align-items: flex-start; }
-    }
-</style>
-
-<div class="card about-page" style="padding: 20px;">
+<div class="card about-page">
     <!-- Header -->
     <div class="about-header">
         <h1>MCS Robotics</h1>
@@ -170,32 +10,30 @@
         Real‑time AI inspection for shipping containers – detecting damage, contamination, and structural issues instantly.
     </div>
 
-    <!-- Model simulation with your image -->
+    <!-- Model simulation with your image (background removed) -->
     <div class="model-section">
-        <h3><i class="fas fa-cube" style="color: var(--accent-blue);"></i> AI Model in Action</h3>
+        <h3><i class="fas fa-cube"></i> AI Model in Action</h3>
         <div class="model-visual">
             <div class="container-mock">
-                <!-- Local image path -->
                 <img src="/assets/images/about-us.jpeg" alt="Container inspection">
-                <!-- Simulated detection overlays -->
                 <div class="detection-overlay">
-                    <div class="detection-box damage-box" style="top: 18%; left: 12%; width: 9%; height: 14%;">
+                    <div class="detection-box damage-box">
                         <span class="box-label">DENT</span>
                     </div>
-                    <div class="detection-box contamination-box" style="top: 42%; left: 38%; width: 16%; height: 11%;">
-                        <span class="box-label">CONTAMINATION</span>
+                    <div class="detection-box contamination-box">
+                        <span class="box-label">CONTAM</span>
                     </div>
-                    <div class="detection-box rust-box" style="top: 58%; left: 62%; width: 11%; height: 9%;">
+                    <div class="detection-box rust-box">
                         <span class="box-label">RUST</span>
                     </div>
-                    <div class="detection-box hole-box" style="top: 28%; left: 72%; width: 7%; height: 7%;">
+                    <div class="detection-box hole-box">
                         <span class="box-label">HOLE</span>
                     </div>
                 </div>
             </div>
             <div class="model-caption">
-                <i class="fas fa-sync-alt fa-spin" style="margin-right: 4px;"></i> 
-                Simulated real‑time detection: damage (red), contamination (orange), rust (brown), holes (purple).
+                <i class="fas fa-sync-alt fa-spin"></i> 
+                Simulated real‑time detection: damage, contamination, rust, holes
             </div>
             <div class="model-badge">
                 <i class="fas fa-microchip"></i> 1.2M params • 32 fps
@@ -210,6 +48,6 @@
             <span class="contact-item"><i class="fas fa-phone-alt"></i> +1 (800) 555‑5678</span>
             <span class="contact-item"><i class="fas fa-map-marker-alt"></i> Houston • Rotterdam • Singapore</span>
         </div>
-        <a href="#" class="btn btn-outline"><i class="fas fa-calendar-alt"></i> Demo</a>
+        <a href="#" class="btn-outline"><i class="fas fa-calendar-alt"></i> Demo</a>
     </div>
 </div>

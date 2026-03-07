@@ -21,10 +21,8 @@
             <li class="sidebar-item"><a href="about-us.html"><i class="fas fa-info-circle"></i><span class="sidebar-label">About Us</span></a></li>
         </ul>
         <div class="sidebar-footer">
-    
-                <div class="version-container">
-                    <span class="sidebar-version">v2.1.0</span>
-                
+            <div class="version-container">
+                <span class="sidebar-version">v2.1.0</span>
             </div>
         </div>
     </div>
@@ -48,173 +46,195 @@
             </div>
         </div>
 
-        <!-- Main content area – content will be loaded here dynamically -->
+        <!-- Main content area – now contains a persistent index wrapper and a dynamic container -->
         <div class="main-content" id="mainContentContainer">
-            <!-- Default home content (static, will be replaced on navigation) -->
-            <div class="layout">
-                <!-- LEFT COLUMN: video & controls -->
-                <section class="card video-card">
-                    <div class="video-container">
-                        <video id="video" muted></video>
-                        <canvas id="overlay"></canvas>
-                    </div>
-
-                    <!-- Control bar -->
-                    <div class="control-bar">
-                        <div class="left-controls">
-                            <label for="fileInput" class="btn btn-primary"><i class="fas fa-folder-open"></i> Choose</label>
-                            <input type="file" id="fileInput" accept="image/*,video/*">
-                            <button id="btnAnalyze" class="btn btn-primary" disabled><i class="fas fa-search"></i> Analyze</button>
-                            <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
-                        </div>
-                        <div class="right-controls">
-                            <button id="btnPlay" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
-                            <button id="btnPause" class="btn btn-primary"><i class="fas fa-pause"></i> Pause</button>
-                            <button id="btnStop" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
-                        </div>
-                    </div>
-
-                    <!-- Analysis parameters -->
-                    <div class="analysis-controls">
-                        <div class="control-group"><span>Damage sensitivity:</span>
-                            <select id="damageSensitivity">
-                                <option value="low">Low</option>
-                                <option value="medium" selected>Medium</option>
-                                <option value="high">High</option>
-                            </select>
-                        </div>
-                        <div class="control-group"><span>Dark spots:</span>
-                            <select id="spotMode">
-                                <option value="auto" selected>Auto</option>
-                                <option value="mold_only">Mold Only</option>
-                                <option value="off">Off</option>
-                            </select>
-                        </div>
-                    </div>
-
-                    <!-- Stage controls -->
-                    <div class="stage-controls">
-                        <span>Inspection stage:</span>
-                        <button id="btnStagePre" class="btn btn-secondary btn-stage">Pre Wash</button>
-                        <button id="btnStagePost" class="btn btn-secondary btn-stage">Post Wash</button>
-                        <button id="btnStageNone" class="btn btn-secondary btn-stage">None</button>
-                    </div>
-
-                    <!-- View type -->
-                    <div class="view-controls" style="display: flex; align-items: center; gap: 8px; flex-wrap: wrap;">
-                        <span>View type:</span>
-                        <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
-                        <button id="btnViewInterior" class="btn btn-secondary btn-stage">Interior</button>
-                        <span id="viewLabel" class="view-label">View: none</span>
-                    </div>
-
-                    <!-- Recent Files -->
-                    <div class="recent-files">
-                        <h3 class="recent-title">Recent Files</h3>
-                        <table class="recent-table">
-                            <thead><tr><th>File</th><th>Date</th><th>Status</th></tr></thead>
-                            <tbody id="recentFilesBody">
-                                <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
-                                <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
-                                <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
-                            </tbody>
-                        </table>
-                        <div class="see-all"><a href="history.html" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
-                    </div>
-                </section>
-
-                <!-- RIGHT COLUMN -->
-                <section class="card status-card">
-                    <!-- Container summary -->
-                    <div class="summary-block">
-                        <div class="summary-title-main">Container ID: <span id="summaryContainerId"></span></div>
-                        <div class="badges-row">
-                            <span id="summaryStatusBadge" class="badge"><i class="fas fa-check-circle"></i> Status: </span>
-                            <span id="summaryStageBadge" class="badge"><i class="fas fa-tint"></i> Stage: </span>
-                            <span id="summaryPeopleBadge" class="badge badge-muted"><i class="fas fa-user"></i> Person: </span>
-                            <span id="summaryDoorBadge" class="badge badge-muted"><i class="fas fa-door-open"></i> Doors: </span>
-                            <span id="summaryAnomBadge" class="badge badge-muted"><i class="fas fa-exclamation-triangle"></i> Anomalies: </span>
-                        </div>
-                    </div>
-
-                    <!-- Pie chart + contamination -->
-                    <div class="stats-row">
-                        <div class="pie-card">
-                            <div class="pie-chart-placeholder">
-                                <div class="pie"></div>
-                                <span class="pie-label">Defects by Type</span>
-                            </div>
-                            <div class="stats-numbers">
-                                <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
-                                <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
-                                <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
-                                <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
-                            </div>
-                        </div>
-                        <div class="contamination-card">
-                            <h4 class="contamination-title">Contamination Level</h4>
-                            <div class="cont-scale-vertical">
-                                <div class="cont-scale-header"><span>Level</span><span id="contScaleValueText">—</span></div>
-                                <div class="cont-scale-bar-vertical" id="contScaleBarVertical">
-                                    <div class="cont-box-vertical" data-level="1" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="2" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="3" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="4" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="5" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="6" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="7" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="8" style="height:20px; background-color:#b9c2d0;"></div>
-                                    <div class="cont-box-vertical" data-level="9" style="height:20px; background-color:#b9c2d0;"></div>
+            <!-- INDEX PAGE (permanent wrapper) -->
+            <div id="page-index">
+                <!-- All original index content goes here – unchanged -->
+                <div class="layout">
+                    <!-- LEFT CARD: video preview + controls (two columns) + recent files below -->
+                    <section class="card video-card">
+                        <!-- Two‑column row: video (60%) and controls (40%) -->
+                        <div class="preview-controls-row">
+                            <div class="preview-column">
+                                <div class="video-container portrait-preview">
+                                    <video id="video" muted></video>
+                                    <canvas id="overlay"></canvas>
                                 </div>
-                                <div class="cont-scale-label">Cleaning estimate based on findings.</div>
+                            </div>
+                            <div class="controls-column">
+                                <!-- Row 1: Choose button + filename -->
+                                <div class="choose-row control-row">
+                                    <label for="fileInput" class="btn btn-primary"><i class="fas fa-folder-open"></i> Choose</label>
+                                    <input type="file" id="fileInput" accept="image/*,video/*">
+                                    <span id="fileNameDisplay" class="file-name">No file chosen</span>
+                                </div>
+
+                                <!-- Row 2: Analysis parameters -->
+                                <div class="analysis-controls control-row">
+                                    <div class="control-group">
+                                        <span>Damage sensitivity:</span>
+                                        <select id="damageSensitivity">
+                                            <option value="low">Low</option>
+                                            <option value="medium" selected>Medium</option>
+                                            <option value="high">High</option>
+                                        </select>
+                                    </div>
+                                    <div class="control-group">
+                                        <span>Dark spots:</span>
+                                        <select id="spotMode">
+                                            <option value="auto" selected>Auto</option>
+                                            <option value="mold_only">Mold Only</option>
+                                            <option value="off">Off</option>
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Stage controls -->
+                                <div class="stage-controls control-row">
+                                    <span class="control-label-full">Inspection stage:</span>
+                                    <button id="btnStagePre" class="btn btn-secondary btn-stage">Pre Wash</button>
+                                    <button id="btnStagePost" class="btn btn-secondary btn-stage">Post Wash</button>
+                                    <button id="btnStageNone" class="btn btn-secondary btn-stage">None</button>
+                                </div>
+
+                                <!-- Row 4: View type controls -->
+                                <div class="view-controls control-row">
+                                    <span class="control-label-full">View type:</span>
+                                    <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
+                                    <button id="btnViewInterior" class="btn btn-secondary btn-stage">Interior</button>
+                                    <span id="viewLabel" class="view-label">View: none</span>
+                                </div>
+
+                                <!-- Row 6: Analyze & Auto buttons -->
+                                <div class="analyze-row control-row">
+                                    <button id="btnAnalyze" class="btn btn-primary" disabled><i class="fas fa-search"></i> Analyze</button>
+                                    <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
+                                </div>
+
+                                <!-- Row 5: Playback controls -->
+                                <div class="playback-controls control-row">
+                                    <button id="btnPlay" class="btn btn-primary"><i class="fas fa-play"></i> Play</button>
+                                    <button id="btnPause" class="btn btn-primary"><i class="fas fa-pause"></i> Pause</button>
+                                    <button id="btnStop" class="btn btn-primary"><i class="fas fa-stop"></i> Stop</button>
+                                </div>
                             </div>
                         </div>
-                    </div>
 
-                    <!-- Inspection Results Table -->
-                    <div class="inspection-table-container">
-                        <div class="table-header">
-                            <h3 class="table-title">Inspection Results</h3>
-                            <div class="legend-row">
-                                <div class="legend-item"><span class="legend-color" style="background:#00cc00;"></span> Low (0–30)</div>
-                                <div class="legend-item"><span class="legend-color" style="background:#ffcc00;"></span> Medium (31–70)</div>
-                                <div class="legend-item"><span class="legend-color" style="background:#cc0000;"></span> High (71–100)</div>
+                        <!-- Recent Files -->
+                        <div class="recent-files">
+                            <h3 class="recent-title">Recent Files</h3>
+                            <div class="recent-table-wrapper">
+                                <table class="recent-table">
+                                    <thead><tr><th>File</th><th>Date</th><th>Status</th></tr></thead>
+                                    <tbody id="recentFilesBody">
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="see-all"><a href="history.html" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
+                        </div>
+                    </section>
+
+                    <!-- RIGHT CARD: status, charts, inspection table -->
+                    <section class="card status-card">
+                        <!-- Container summary -->
+                        <div class="summary-block">
+                            <div class="summary-title-main">Container ID: <span id="summaryContainerId"></span></div>
+                            <div class="badges-row">
+                                <span id="summaryStatusBadge" class="badge"><i class="fas fa-check-circle"></i> Status: </span>
+                                <span id="summaryStageBadge" class="badge"><i class="fas fa-tint"></i> Stage: </span>
+                                <span id="summaryPeopleBadge" class="badge badge-muted"><i class="fas fa-user"></i> Person: </span>
+                                <span id="summaryDoorBadge" class="badge badge-muted"><i class="fas fa-door-open"></i> Doors: </span>
+                                <span id="summaryAnomBadge" class="badge badge-muted"><i class="fas fa-exclamation-triangle"></i> Anomalies: </span>
                             </div>
                         </div>
-                        <table class="inspection-table">
-                            <thead>
-                                <tr>
-                                    <th>Defect</th>
-                                    <th>Pre Wash</th>
-                                    <th>After Wash</th>
-                                </tr>
-                            </thead>
-                            <tbody id="inspectionTableBody">
-                                <tr><td class="defect-name">Cracks</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Dents</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Rust & Corrosion</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Holes</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Dust & Powder</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Oil & Stains</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Nails & Fasteners</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                                <tr><td class="defect-name">Floor Structural Damage</td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar" style="width:0%; background-color:#b9c2d0;"></div></div></td></tr>
-                            </tbody>
-                        </table>
 
-                        <!-- Save buttons -->
-                        <div style="margin-top: 16px; display: flex; gap: 8px; justify-content: flex-end;">
-                            <button id="btnDownloadReport" class="btn btn-secondary">📄 Download Report</button>
-                            <button id="btnSaveToDatabase" class="btn btn-secondary">💾 Save to Database</button>
+                        <!-- Pie chart + contamination -->
+                        <div class="stats-row">
+                            <div class="pie-card">
+                                <div class="pie-chart-placeholder">
+                                    <div class="pie"></div>
+                                    <span class="pie-label">Defects by Type</span>
+                                </div>
+                                <div class="stats-numbers">
+                                    <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
+                                    <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
+                                    <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
+                                    <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
+                                </div>
+                            </div>
+                            <div class="contamination-card">
+                                <h4 class="contamination-title">Contamination Level</h4>
+                                <div class="cont-scale-vertical">
+                                    <div class="cont-scale-header"><span>Level</span><span id="contScaleValueText">—</span></div>
+                                    <div class="cont-scale-bar-vertical" id="contScaleBarVertical">
+                                        <div class="cont-box-vertical" data-level="1"></div>
+                                        <div class="cont-box-vertical" data-level="2"></div>
+                                        <div class="cont-box-vertical" data-level="3"></div>
+                                        <div class="cont-box-vertical" data-level="4"></div>
+                                        <div class="cont-box-vertical" data-level="5"></div>
+                                        <div class="cont-box-vertical" data-level="6"></div>
+                                        <div class="cont-box-vertical" data-level="7"></div>
+                                        <div class="cont-box-vertical" data-level="8"></div>
+                                        <div class="cont-box-vertical" data-level="9"></div>
+                                    </div>
+                                    <div class="cont-scale-label">Cleaning estimate based on findings.</div>
+                                </div>
+                            </div>
                         </div>
-                    </div>
-                </section>
+
+                        <!-- Inspection Results Table -->
+                        <div class="inspection-table-container">
+                            <div class="table-header">
+                                <h3 class="table-title">Inspection Results</h3>
+                                <div class="legend-row">
+                                    <div class="legend-item"><span class="legend-color legend-low"></span> Low (0–30)</div>
+                                    <div class="legend-item"><span class="legend-color legend-medium"></span> Medium (31–70)</div>
+                                    <div class="legend-item"><span class="legend-color legend-high"></span> High (71–100)</div>
+                                </div>
+                            </div>
+                            <table class="inspection-table">
+                                <thead>
+                                    <tr>
+                                        <th>Defect</th>
+                                        <th>Pre Wash</th>
+                                        <th>After Wash</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inspectionTableBody">
+                                    <tr><td class="defect-name">Cracks</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Dents</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Rust & Corrosion</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Holes</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Dust & Powder</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Oil & Stains</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Nails & Fasteners</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Floor Structural Damage</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Save buttons -->
+                            <div class="save-actions-row">
+                                <button id="btnDownloadReport" class="btn btn-secondary">📄 Download Report</button>
+                                <button id="btnSaveToDatabase" class="btn btn-secondary">💾 Save to Database</button>
+                            </div>
+                        </div>
+                    </section>
+                </div>
             </div>
+            <!-- End of index wrapper -->
+
+            <!-- Dynamic container for other pages (history, settings, about) -->
+            <div id="page-dynamic" style="display: none;"></div>
         </div>
 
         <!-- Footer (fixed) -->
         <div class="footer-wrapper">
             <div class="page">
-                <footer class="app-footer" style="display: flex; justify-content: space-between; align-items: center;">
+                <footer class="app-footer">
                     <span>&copy; 2025 MCS Robotics. All rights reserved.</span>
                     <div class="footer-status">
                         <span>Backend: <span id="backendStatus">reachable</span></span>
@@ -229,91 +249,92 @@
     <script src="/assets/js/scripts.js"></script>
     <script src="/assets/js/history.js"></script>
 
+    <!-- Updated navigation script (preserves index state) -->
     <script>
     (function() {
         const mainContainer = document.getElementById('mainContentContainer');
+        const indexPage = document.getElementById('page-index');
+        const dynamicContainer = document.getElementById('page-dynamic');
         const sidebarLinks = document.querySelectorAll('.sidebar-menu a');
-        const homeContent = mainContainer.innerHTML; // stored home HTML
+        const headerTitleSpan = document.querySelector('.company-name');
 
-        // Update active class on sidebar
-        function setActiveLink(url) {
-        const currentPage = url.split('/').pop() || 'index.html';
-        sidebarLinks.forEach(link => {
-            const linkHref = link.getAttribute('href');
-            link.closest('.sidebar-item').classList.toggle('active', linkHref === currentPage);
-        });
-        }
-
-        // Map page URLs to their initialisation functions
-        const pageInitMap = {
-        'history.html': window.initHistoryPage,
-        'live-analysis.html': window.initLiveAnalysis,
-        'settings.html': window.initSettings,
-        'about-us.html': window.initAbout
+        const pageTitles = {
+            'index.html': 'Container Inspection System',
+            'history.html': 'History',
+            'settings.html': 'Settings',
+            'about-us.html': 'About Us'
         };
 
-        // Load content from a fragment URL
+        function setActiveLink(url) {
+            const currentPage = url.split('/').pop() || 'index.html';
+            sidebarLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                link.closest('.sidebar-item').classList.toggle('active', linkHref === currentPage);
+            });
+        }
+
+        function updateHeaderTitle(url) {
+            const fileName = url.split('/').pop() || 'index.html';
+            headerTitleSpan.textContent = pageTitles[fileName] || 'Container Inspection System';
+        }
+
+        const pageInitMap = {
+            'history.html': window.initHistoryPage,
+            'settings.html': window.initSettings,
+            'about-us.html': window.initAbout
+        };
+
         async function loadContent(url) {
-        if (url === 'index.html' || url === '' || url === '/') {
-            mainContainer.innerHTML = homeContent;
-            setActiveLink('index.html');
-            history.pushState({ url: 'index.html' }, '', 'index.html');
-            return;
-        }
-
-        try {
-            const response = await fetch(url);
-            if (!response.ok) throw new Error(`HTTP ${response.status}`);
-            const html = await response.text();
-            mainContainer.innerHTML = html;
-            setActiveLink(url);
-            history.pushState({ url }, '', url);
-
-            // Run page initialiser if available
-            const initFn = pageInitMap[url];
-            if (initFn && typeof initFn === 'function') {
-            initFn();
+            if (url === 'index.html' || url === '' || url === '/') {
+                // Show index, hide dynamic
+                indexPage.style.display = 'block';
+                dynamicContainer.style.display = 'none';
+                dynamicContainer.innerHTML = '';
+                setActiveLink('index.html');
+                updateHeaderTitle('index.html');
+                history.pushState({ url: 'index.html' }, '', 'index.html');
+                return;
             }
-        } catch (error) {
-            console.error('Failed to load page:', error);
-            mainContainer.innerHTML = `<div class="error-message" style="padding:2rem;text-align:center;">Failed to load content. Please try again.</div>`;
-        }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const html = await response.text();
+
+                // Hide index, show dynamic with fetched content
+                indexPage.style.display = 'none';
+                dynamicContainer.style.display = 'block';
+                dynamicContainer.innerHTML = html;
+
+                setActiveLink(url);
+                updateHeaderTitle(url);
+                history.pushState({ url }, '', url);
+
+                // Run page‑specific initializer
+                const initFn = pageInitMap[url];
+                if (initFn && typeof initFn === 'function') initFn();
+            } catch (error) {
+                console.error('Failed to load page:', error);
+                dynamicContainer.innerHTML = `<div class="error-message" style="padding:2rem;text-align:center;">Failed to load content. Please try again.</div>`;
+            }
         }
 
-        // ---------- Handle initial page load ----------
-        const urlParams = new URLSearchParams(window.location.search);
-        const pageParam = urlParams.get('page');
-
-        if (pageParam) {
-        // Came here via redirect from a fragment: remove the query param
-        // and load the requested fragment.
-        const cleanUrl = window.location.pathname; // e.g., /index.html
-        history.replaceState(null, '', cleanUrl);
-        loadContent(pageParam);
-        } else {
+        // Initial page load
         const initialPath = window.location.pathname.split('/').pop() || 'index.html';
-        if (initialPath !== 'index.html') {
-            loadContent(initialPath);
-        } else {
-            setActiveLink('index.html');
-        }
-        }
+        loadContent(initialPath);
 
-        // ---------- Sidebar click handling ----------
+        // Sidebar click handling
         sidebarLinks.forEach(link => {
-        link.addEventListener('click', function(e) {
-            e.preventDefault();
-            loadContent(this.getAttribute('href'));
-        });
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadContent(this.getAttribute('href'));
+            });
         });
 
-        // ---------- Browser back/forward ----------
+        // Browser back/forward
         window.addEventListener('popstate', function(e) {
-        if (e.state && e.state.url) {
-            loadContent(e.state.url);
-        } else {
-            loadContent('index.html');
-        }
+            if (e.state && e.state.url) loadContent(e.state.url);
+            else loadContent('index.html');
         });
     })();
     </script>

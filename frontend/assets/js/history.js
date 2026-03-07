@@ -16,24 +16,44 @@ function safeGetElement(id) {
 
 async function loadStats() {
     try {
-        // Fetch all inspections (without pagination) – adjust page_size to a large number
-        const resp = await fetch(`${API_BASE}/api/history/?page_size=1000`);
+        // Use same pagination as loadHistory but with a large page_size to get all items
+        // If backend limits page_size, we can request multiple pages, but for now use a safe value
+        const resp = await fetch(`${API_BASE}/api/history/?page=1&page_size=100`);
+        if (!resp.ok) {
+            throw new Error(`HTTP ${resp.status}: ${resp.statusText}`);
+        }
         const data = await resp.json();
-        const items = data.items || [];
-
+        
+        // Extract items (handle both paginated response and plain array)
+        const items = data.items || data || [];
+        
+        // Compute statistics
         const totalInspections = items.length;
-        const uniqueContainers = new Set(items.map(i => i.container_id)).size;
-        const totalFrames = items.reduce((sum, i) => sum + (i.frame_count || 0), 0);
-        const totalDetections = items.reduce((sum, i) => sum + (i.detection_count || 0), 0);
+        const uniqueContainers = new Set(items.map(i => i.container_id).filter(Boolean)).size;
+        const totalFrames = items.reduce((sum, i) => sum + (i.frame_count || i.frameCount || 0), 0);
+        const totalDetections = items.reduce((sum, i) => sum + (i.detection_count || i.detectionCount || 0), 0);
         const alertCount = items.filter(i => i.status === 'alert').length;
 
-        safeGetElement('statInspections').textContent = totalInspections;
-        safeGetElement('statContainers').textContent = uniqueContainers;
-        safeGetElement('statFrames').textContent = totalFrames;
-        safeGetElement('statDetections').textContent = totalDetections;
-        safeGetElement('statAlerts').textContent = alertCount;
+        // Update DOM elements
+        const setText = (id, value) => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = value;
+        };
+
+        setText('statInspections', totalInspections);
+        setText('statContainers', uniqueContainers);
+        setText('statFrames', totalFrames);
+        setText('statDetections', totalDetections);
+        setText('statAlerts', alertCount);
+        
+        console.log('Stats updated:', { totalInspections, uniqueContainers, totalFrames, totalDetections, alertCount });
     } catch (e) {
-        console.warn('Could not compute stats from list', e);
+        console.error('loadStats error:', e);
+        // Display dashes on error
+        ['statInspections','statContainers','statFrames','statDetections','statAlerts'].forEach(id => {
+            const el = document.getElementById(id);
+            if (el) el.textContent = '—';
+        });
     }
 }
 // ----- Load history list (with filters & pagination) -----
@@ -227,18 +247,35 @@ function renderDetail(data) {
     }
 
     // Frame thumbnails
+    const frameList = data.frames.map(frame => ({
+        ...frame,
+        overlayUrl: frame.overlay_path ? `${API_BASE}/api/images/${frame.overlay_path}` : null,
+        imageUrl: frame.image_path ? `${API_BASE}/api/images/${frame.image_path}` : null
+    }));
+
+    const transparentPixel = 'data:image/gif;base64,R0lGODlhAQABAIAAAAAAAP///ywAAAAAAQABAAACAUwAOw==';
     const thumbnailsContainer = document.querySelector('.frame-thumbnails');
     if (!thumbnailsContainer) return;
     thumbnailsContainer.innerHTML = '';
 
-    data.frames.forEach((frame, idx) => {
+    frameList.forEach((frame, idx) => {
         const thumb = document.createElement('div');
         thumb.className = 'frame-thumb';
-        thumb.style.cssText = 'width:60px; height:60px; border-radius:8px; overflow:hidden; border:2px solid transparent; cursor:pointer; flex-shrink:0;';
+        thumb.setAttribute('role', 'button');
+        thumb.setAttribute('aria-label', `Show frame ${idx + 1}`);
         thumb.setAttribute('data-frame-idx', idx);
-        const imgPath = frame.overlay_path || frame.image_path;
-        const imgUrl = `${API_BASE}/api/images/${imgPath}`;
-        thumb.innerHTML = `<img src="${imgUrl}" style="width:100%; height:100%; object-fit:cover;">`;
+
+        const thumbImg = document.createElement('img');
+        const thumbUrl = frame.overlayUrl || frame.imageUrl || transparentPixel;
+        thumbImg.src = thumbUrl;
+        if (frame.imageUrl) {
+            thumbImg.onerror = () => {
+                if (thumbImg.dataset.fallback) return;
+                thumbImg.dataset.fallback = '1';
+                thumbImg.src = frame.imageUrl;
+            };
+        }
+        thumb.appendChild(thumbImg);
         thumb.addEventListener('click', () => showFrame(idx));
         thumbnailsContainer.appendChild(thumb);
     });
@@ -250,9 +287,22 @@ function renderDetail(data) {
 
     function showFrame(idx) {
         currentFrameIndex = idx;
-        const frame = data.frames[idx];
-        const imgPath = frame.overlay_path || frame.image_path;
-        mainImage.src = `${API_BASE}/api/images/${imgPath}`;
+        const frame = frameList[idx];
+        if (!frame) return;
+
+        mainImage.dataset.fallback = '0';
+        mainImage.onerror = () => {
+            if (mainImage.dataset.fallback === '1' || !frame.imageUrl) return;
+            mainImage.dataset.fallback = '1';
+            mainImage.src = frame.imageUrl;
+        };
+
+        const targetUrl = frame.overlayUrl || frame.imageUrl;
+        if (targetUrl) {
+            mainImage.src = targetUrl;
+        } else {
+            mainImage.removeAttribute('src');
+        }
 
         // Highlight active thumbnail
         document.querySelectorAll('.frame-thumb').forEach((el, i) => {
@@ -337,7 +387,6 @@ async function confirmDelete() {
     }
 }
 
-// ----- Metadata save (inline editing) -----
 async function saveMetadata() {
     if (!currentInspectionId) return;
 
@@ -345,7 +394,7 @@ async function saveMetadata() {
     const isoType = safeGetElement('editIsoType')?.value.trim();
 
     if (!containerId) {
-        alert('Container ID is required');
+        showNotification('Container ID is required', 'error');
         return;
     }
 
@@ -357,17 +406,17 @@ async function saveMetadata() {
         });
 
         if (resp.ok) {
-            alert('Metadata updated successfully');
+            showNotification('Metadata updated successfully', 'success');
             await loadDetail(currentInspectionId);
-            await loadHistory();  // refresh list
+            await loadHistory();
             await loadStats();
         } else {
             const error = await resp.json();
-            alert('Failed to update: ' + (error.detail || 'Unknown error'));
+            showNotification('Failed to update: ' + (error.detail || 'Unknown error'), 'error');
         }
     } catch (e) {
         console.error('Failed to save metadata:', e);
-        alert('Failed to save metadata');
+        showNotification('Failed to save metadata', 'error');
     }
 }
 
@@ -406,17 +455,15 @@ async function downloadReport(inspectionId, containerId) {
     }
 }
 
-// ----- Notification system -----
 function showNotification(message, type = 'info') {
     const notification = document.createElement('div');
-    notification.style.cssText = `
-        position: fixed; top: 20px; right: 20px; padding: 12px 20px; border-radius: 8px;
-        font-size: 14px; font-weight: 500; z-index: 2000; animation: slideIn 0.3s ease;
-        background: ${type === 'success' ? '#10b981' : type === 'error' ? '#ef4444' : '#3b82f6'};
-        color: white;
-    `;
+    notification.className = `notification notification-${type}`;
     notification.textContent = message;
     document.body.appendChild(notification);
+
+    // Trigger reflow to enable animation
+    notification.style.animation = 'slideIn 0.3s ease';
+
     setTimeout(() => {
         notification.style.animation = 'slideOut 0.3s ease';
         setTimeout(() => notification.remove(), 300);

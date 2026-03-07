@@ -5,10 +5,29 @@ import cv2
 import numpy as np
 from pathlib import Path
 from datetime import datetime
-from typing import List, Tuple
+from typing import List, Optional, Tuple
 import shutil
+from functools import lru_cache
 
 from app.config import settings
+from app.utils.logger import get_logger
+
+logger = get_logger(__name__)
+
+@lru_cache(maxsize=512)
+def _find_file_by_name(filename: str) -> Optional[Path]:
+    if not filename:
+        return None
+
+    storage_root = settings.STORAGE_ROOT
+    if not storage_root.exists():
+        return None
+
+    for candidate in storage_root.rglob(filename):
+        if candidate.is_file():
+            return candidate
+
+    return None
 
 
 class StorageService:
@@ -134,8 +153,28 @@ class StorageService:
         return original_path, overlay_path
     
     def get_absolute_path(self, relative_path: str) -> Path:
-        """Convert relative path to absolute"""
-        return settings.ROOT_DIR / relative_path
+        """Convert a persisted storage path to the absolute file location."""
+        normalized = Path(relative_path.lstrip("/"))
+        storage_prefix = Path("storage") / "inspections"
+
+        if normalized.parts[:2] == ("storage", "inspections"):
+            relative_inside = normalized.relative_to(storage_prefix)
+            candidate = settings.STORAGE_ROOT / relative_inside
+            if candidate.exists():
+                return candidate
+        elif normalized.parts and normalized.parts[0] == "inspections":
+            relative_inside = normalized.relative_to("inspections")
+            candidate = settings.STORAGE_ROOT / relative_inside
+            if candidate.exists():
+                return candidate
+
+        fallback = _find_file_by_name(normalized.name)
+        if fallback:
+            logger.info("Located %s by filename fallback at %s", normalized.name, fallback)
+            return fallback
+
+        legacy = settings.ROOT_DIR / normalized
+        return legacy
     
     def cleanup_old_inspections(self, days_to_keep: int = None):
         """Clean up old inspection data"""
