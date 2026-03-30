@@ -1,0 +1,532 @@
+/* Lightweight overrides for history page that reuse the global theme */
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap');
+
+* {
+    box-sizing: border-box;
+}
+
+.history-page {
+    padding-top: 32px;
+    min-height: calc(100vh - 120px);
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+}
+
+.history-header,
+.card,
+.stats-card,
+.list-card,
+.detail-card,
+.search-bar,
+.stat-box {
+    background: transparent;
+    border-radius: 0;
+    border: none;
+}
+
+.history-header {
+    display: flex;
+    align-items: flex-start;
+    justify-content: space-between;
+    margin-bottom: 8px;
+    padding: 14px 16px;
+    box-shadow: none;
+}
+
+.history-title,
+.history-subtitle,
+.section-title,
+.stat-value,
+.stat-label,
+.stat-box,
+.list-header,
+.search-bar label,
+.search-bar span,
+.stat-box::after {
+    color: var(--text-primary);
+}
+
+.history-subtitle,
+.stat-label {
+    color: rgba(250, 250, 249, 0.8);
+    letter-spacing: 0.05em;
+}
+
+.download-btn,
+.delete-btn,
+.card .btn,
+.card button,
+.card input[type="button"],
+.card input[type="submit"],
+.card .btn-primary,
+.card .btn-secondary {
+    background: var(--button-brand);
+    border: 1px solid var(--button-brand);
+    color: white;
+    cursor: pointer;
+    padding: 4px 8px;
+    border-radius: 4px;
+    font-weight: 600;
+}
+
+.search-bar {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 8px;
+    padding: 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.15);
+}
+
+.search-bar input,
+.search-bar select {
+    padding: 8px 10px;
+    border-radius: 4px;
+    border: 1px solid rgba(255, 255, 255, 0.3);
+    background: rgba(255, 255, 255, 0.05);
+    color: var(--text-primary);
+}
+
+.stat-box {
+    padding: 12px;
+    text-align: center;
+    border-radius: 6px;
+    transition: transform 0.15s ease, box-shadow 0.15s ease;
+}
+
+.stat-box:hover {
+    transform: translateY(-2px);
+    box-shadow: 0 8px 18px rgba(0, 0, 0, 0.45);
+}
+
+.stats-grid {
+    display: grid;
+    gap: 8px;
+    grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+}
+
+.stat-value {
+    font-size: 1.4rem;
+    font-weight: 700;
+}
+
+.lists,
+.details {
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.detail-card {
+    display: none;
+}
+
+.detail-card.active {
+    display: block;
+}
+
+.detail-view {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 16px;
+}
+
+.detail-view .detail-header {
+    flex-shrink: 0;
+}
+
+.detail-header {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    justify-content: flex-start;
+    padding-bottom: 8px;
+    margin-bottom: 12px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.detail-header h2 {
+    margin: 0;
+    font-size: 1.2rem;
+    font-weight: 700;
+    white-space: nowrap;
+}
+
+.detail-header .back-icon-link {
+    background: rgba(255, 255, 255, 0.06);
+    border-radius: 50%;
+    width: 36px;
+    height: 36px;
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    color: var(--text-primary);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-view .inspection-grid-industrial {
+    flex: 1;
+    min-height: 0;
+}
+
+.detections-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.9rem;
+}
+
+.detections-table th,
+.detections-table td {
+    padding: 12px 16px;
+    text-align: left;
+    color: var(--text-primary);
+    background: none;
+    border-radius: 0;
+}
+
+.table-card .detections-table {
+    border-radius: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    background: rgba(255, 255, 255, 0.02);
+    overflow: hidden;
+}
+
+.table-card .detections-table thead th {
+    font-weight: 600;
+    background: rgba(255, 255, 255, 0.05);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    position: sticky;
+    top: 0;
+    z-index: 2;
+    color: var(--text-primary);
+}
+
+.table-card .detections-table tbody tr {
+    transition: background 0.2s ease;
+}
+
+.table-card .detections-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.06);
+}
+
+.table-card .detections-table tbody tr td {
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+}
+
+.table-card .detections-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-card .detections-table th {
+    font-weight: 600;
+}
+
+.detections-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.table-card,
+.table-wrapper {
+    padding: 16px;
+    margin-top: 12px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    border: none;
+    box-shadow: none;
+    width: 100%;
+    box-sizing: border-box;
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 360px;
+    justify-content: flex-start;
+    min-height: 0;
+}
+
+.table-card table,
+.table-wrapper table {
+    width: 100%;
+    flex: 1;
+    min-height: 0;
+}
+
+.table-card .detections-table,
+.table-card .table-scroll-area,
+.table-wrapper .detections-table {
+    margin: 0;
+    flex: 1;
+}
+
+.pagination {
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    gap: 12px;
+    margin-top: 12px;
+}
+
+.pagination .btn {
+    padding: 6px 16px;
+}
+
+.pagination-wrapper {
+    margin-top: auto;
+}
+
+.table-wrapper .pagination {
+    margin-top: auto;
+}
+
+.list-pagination {
+    margin-top: auto;
+}
+
+.table-card table td,
+.table-card table th,
+.table-wrapper table td,
+.table-wrapper table th {
+    padding-left: 14px;
+    padding-right: 14px;
+}
+
+.table-wrapper .detections-table {
+    flex: 1;
+    border-collapse: collapse;
+    width: 100%;
+}
+
+.table-card .detections-table {
+    flex: 1;
+}
+
+.list-section {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+.list-card {
+    flex: 1;
+    display: flex;
+    flex-direction: column;
+    min-height: 0;
+    gap: 12px;
+}
+.list-card .table-card,
+.list-card .table-wrapper {
+    flex: 1;
+    min-height: 0;
+}
+.inspection-grid-industrial {
+    display: grid;
+    grid-template-columns: 45% 30% 25%;
+    gap: 16px;
+    align-items: flex-start;
+}
+
+.grid-col {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.image-section {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+}
+
+.metadata-section,
+.defect-list-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 12px;
+    padding: 14px;
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    box-shadow: 0 12px 25px rgba(0, 0, 0, 0.35);
+}
+
+.metadata-section .btn,
+.metadata-section .btn-action {
+    background: #f97316;
+    border-color: #f97316;
+    color: #fff;
+    box-shadow: 0 4px 10px rgba(249, 115, 22, 0.35);
+}
+
+.metadata-section .form-row {
+    margin-top: 16px;
+    display: flex;
+    flex-direction: row;
+    gap: 12px;
+    flex-wrap: nowrap;
+    align-items: flex-end;
+    width: 100%;
+}
+
+.metadata-section .form-item {
+    flex: 0 0 calc(50% - 6px);
+    min-width: 0;
+}
+
+@media (max-width: 768px) {
+    .metadata-section .form-row {
+        flex-wrap: wrap;
+    }
+
+    .metadata-section .form-item {
+        flex: 1 1 100%;
+    }
+}
+
+.metadata-section label {
+    display: block;
+    font-size: 0.75rem;
+    letter-spacing: 0.08em;
+    text-transform: uppercase;
+    color: rgba(255, 255, 255, 0.8);
+    margin-bottom: 6px;
+}
+
+.metadata-section input[type="text"] {
+    width: 100%;
+    padding: 10px 12px;
+    border-radius: 8px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: rgba(255, 255, 255, 0.04);
+    color: var(--text-primary);
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
+}
+
+.metadata-section input[type="text"]:focus {
+    border-color: rgba(249, 115, 22, 0.9);
+    outline: none;
+    box-shadow: 0 0 0 3px rgba(249, 115, 22, 0.25);
+}
+
+.button-row {
+    margin-top: 18px;
+    display: flex;
+    gap: 10px;
+    flex-wrap: wrap;
+    justify-content: flex-start;
+}
+
+.metadata-section .btn:hover,
+.metadata-section .btn:focus,
+.metadata-section .btn-action:hover,
+.metadata-section .btn-action:focus {
+    background: #ea580c;
+    border-color: #ea580c;
+    color: #fff;
+}
+
+.image-section {
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 10px;
+    padding: 12px;
+    border: 1px solid rgba(255, 255, 255, 0.05);
+}
+
+.image-container-bg {
+    width: 100%;
+    height: 280px;
+    border-radius: 10px;
+    overflow: hidden;
+    background: rgba(255, 255, 255, 0.04);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+#currentFrameImage {
+    max-width: 100%;
+    max-height: 100%;
+    object-fit: contain;
+    display: block;
+}
+
+.frame-thumbnails {
+    display: flex;
+    gap: 10px;
+    margin-top: 12px;
+    overflow-x: auto;
+    padding-bottom: 4px;
+}
+
+.frame-thumb {
+    width: 72px;
+    height: 48px;
+    border-radius: 6px;
+    overflow: hidden;
+    flex-shrink: 0;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    cursor: pointer;
+}
+
+.frame-thumb img {
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+    display: block;
+}
+
+.defect-list-section {
+    background: transparent;
+    border-radius: 0;
+    border: none;
+    box-shadow: none;
+}
+
+.defect-list-section .inspection-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.85rem;
+    background: transparent;
+}
+
+.defect-list-section .inspection-table th,
+.defect-list-section .inspection-table td {
+    padding: 8px 10px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.08);
+    text-align: left;
+    color: var(--text-primary);
+}
+
+.defect-list-section .inspection-table .defect-header-row th {
+    background: rgba(255, 255, 255, 0.04);
+    font-size: 0.75rem;
+    letter-spacing: 0.15em;
+    text-transform: uppercase;
+    border-bottom: none;
+}
+
+.defect-list-section .inspection-table th {
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.08em;
+    color: rgba(255, 255, 255, 0.7);
+}
+
+.defect-list-section .inspection-table tbody tr:last-child td {
+    border-bottom: none;
+}
+
+.defect-list-section .inspection-table tbody tr:hover {
+    background: rgba(255, 255, 255, 0.04);
+}
+
+.score-cell {
+    display: flex;
+    flex-direction: column;
+    gap: 2px;
+    font-size: 0.75rem;
+}
+
+.score-conf {
+    font-size: 0.68rem;
+    color: rgba(255, 255, 255, 0.65);
+    font-weight: 500;
+}

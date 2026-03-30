@@ -1,0 +1,414 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>MCS Robotics – Container Inspection</title>
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0-beta3/css/all.min.css">
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="/assets/css/styles.css">
+    <link rel="stylesheet" href="/assets/css/history.css">
+</head>
+<body>
+    <nav class="collapsible-nav" aria-label="Primary navigation">
+        <div class="collapsible-nav-item">
+            <a href="index.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-home"></i>
+                <span class="nav-label">Home</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="history.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-history"></i>
+                <span class="nav-label">History</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="reports.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-file-alt"></i>
+                <span class="nav-label">Reports</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="analytics.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-chart-line"></i>
+                <span class="nav-label">Analytics</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="support.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-life-ring"></i>
+                <span class="nav-label">Support</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="settings.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-cog"></i>
+                <span class="nav-label">Settings</span>
+            </a>
+        </div>
+        <div class="collapsible-nav-item">
+            <a href="about-us.html" class="collapsible-nav-link nav-card">
+                <i class="fas fa-info-circle"></i>
+                <span class="nav-label">About Us</span>
+            </a>
+        </div>
+    </nav>
+
+    <!-- Right column (fixed header & footer, dynamic main content) -->
+    <div class="right-column">
+        <div class="header-wrapper">
+            <div class="page">
+                <header class="app-bar">
+                    <div class="app-bar-left">
+                        <img class="header-logo" src="/assets/images/1.png" alt="PTI logo">
+                        <span class="company-name">CONTAINER INSPECTION SYSTEM</span>
+                    </div>
+                    <div class="app-bar-right">
+                        <div class="contact-info">
+                            <div class="contact-item">
+                                <i class="fas fa-envelope"></i>
+                                <span>support@mcsrobotics.com</span>
+                            </div>
+                            <div class="contact-item">
+                                <i class="fas fa-phone-alt"></i>
+                                <span>+1 (800) 555‑1234</span>
+                            </div>
+                        </div>
+                    </div>
+                </header>
+            </div>
+        </div>
+
+        <!-- Main content area – now contains a persistent index wrapper and a dynamic container -->
+        <div class="main-content" id="mainContentContainer">
+            <!-- INDEX PAGE (permanent wrapper) -->
+            <div id="page-index">
+                <!-- All original index content goes here – unchanged -->
+                <div class="layout">
+                    <!-- LEFT CARD: video preview + controls (two columns) + recent files below -->
+                    <section class="card video-card">
+                        <!-- Two‑column row: video (60%) and controls (40%) -->
+                        <div class="preview-controls-row">
+                            <div class="preview-column">
+                                <div class="video-container portrait-preview">
+                                    <video id="video" muted></video>
+                                    <canvas id="overlay"></canvas>
+                                    <div id="workspaceEmptyState" class="workspace-empty-state">
+                                        <div class="workspace-empty-icon"><i class="fas fa-box-open"></i></div>
+                                        <h3>Start a container inspection</h3>
+                                        <p>Choose or drop an image/video to begin. For video sessions, select stage and view before running analysis.</p>
+                                    </div>
+                                </div>
+                            </div>
+                            <div class="controls-column">
+                                <!-- Row 1: Choose button + filename -->
+                                <div class="choose-row control-row">
+                                    <div class="choose-file-group">
+                                        <label for="fileInput" class="btn btn-primary status-summary-style"><i class="fas fa-folder-open"></i> Choose</label>
+                                        <input type="file" id="fileInput" accept="image/*,video/*">
+                                        <span id="fileNameDisplay" class="file-name">No file chosen</span>
+                                    </div>
+                                    <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
+                                </div>
+                                <div class="control-hint">
+                                    <i class="fas fa-circle-info"></i>
+                                    <span>Tip: Drag and drop media into the preview area.</span>
+                                </div>
+
+                                <!-- Row 2: Analysis parameters -->
+                                <div class="analysis-controls control-row">
+                                    <div class="analysis-group">
+                                        <span class="control-label-full">Damage sensitivity:</span>
+                                        <div class="toggle-group">
+                                            <button id="btnSensitivityLow" class="btn btn-secondary btn-stage" data-value="low">Low</button>
+                                            <button id="btnSensitivityMedium" class="btn btn-secondary btn-stage" data-value="medium">Medium</button>
+                                            <button id="btnSensitivityHigh" class="btn btn-secondary btn-stage" data-value="high">High</button>
+                                        </div>
+                                        <span id="damageSensitivityLabel" class="selection-state">Damage: Medium</span>
+                                    </div>
+                                    <div class="analysis-group">
+                                        <span class="control-label-full">Dark spots:</span>
+                                        <div class="toggle-group">
+                                            <button id="btnSpotAuto" class="btn btn-secondary btn-stage" data-value="auto">Auto</button>
+                                            <button id="btnSpotMold" class="btn btn-secondary btn-stage" data-value="mold_only">Mold Only</button>
+                                            <button id="btnSpotOff" class="btn btn-secondary btn-stage" data-value="off">Off</button>
+                                        </div>
+                                        <span id="spotModeLabel" class="selection-state">Dark spots: Auto</span>
+                                    </div>
+                                </div>
+
+                                <!-- Row 3: Stage controls -->
+                                <div class="stage-controls control-row">
+                                    <span class="control-label-full">Inspection stage:</span>
+                                    <button id="btnStagePre" class="btn btn-secondary btn-stage">Pre Wash</button>
+                                    <button id="btnStagePost" class="btn btn-secondary btn-stage">Post Wash</button>
+                                    <span id="stageLabel" class="selection-state">Stage: none</span>
+                                </div>
+
+                                <!-- Row 4: View type controls -->
+                                <div class="view-controls control-row">
+                                    <span class="control-label-full">View type:</span>
+                                    <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
+                                    <button id="btnViewInterior" class="btn btn-secondary btn-stage">Interior</button>
+                                    <span id="viewLabel" class="selection-state">View: none</span>
+                                </div>
+
+                                <!-- Row 6: Analyze & Auto buttons -->
+                                <div class="analyze-row control-row">
+                                    <button id="btnAnalyze" class="btn btn-accent" disabled><i class="fas fa-search"></i> Analyze</button>
+                                </div>
+
+                                <!-- Row 5: Playback controls -->
+                                <div class="playback-controls control-row">
+                                    <button id="btnPlay" class="btn btn-play"><i class="fas fa-play"></i> Play</button>
+                                    <button id="btnPause" class="btn btn-pause"><i class="fas fa-pause"></i> Pause</button>
+                                    <button id="btnStop" class="btn btn-stop"><i class="fas fa-stop"></i> Stop</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Recent Files -->
+                        <div class="recent-files">
+                            <h3 class="recent-title">Recent Files</h3>
+                            <div class="recent-table-wrapper">
+                                <table class="recent-table">
+                                    <thead><tr><th>File</th><th>Date</th><th>Status</th></tr></thead>
+                                    <tbody id="recentFilesBody">
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                        <tr><td>—</td><td>—</td><td><span class="badge">—</span></td></tr>
+                                    </tbody>
+                                </table>
+                            </div>
+                            <div class="see-all"><a href="history.html" class="see-all-link"><i class="fas fa-chevron-circle-down"></i> See all</a></div>
+                        </div>
+                    </section>
+
+                    <!-- RIGHT CARD: status, charts, inspection table -->
+                    <section class="card status-card">
+                        <!-- Container summary -->
+                        <div class="summary-block">
+                        <div class="summary-header">
+                            <div>
+                                <div class="summary-title-main">Container ID: <span id="summaryContainerId">—</span></div>
+                            </div>
+                        </div>
+                        <div class="badges-row">
+                            <span id="summaryStatusBadge" class="badge status-summary-style"><i class="fas fa-check-circle"></i> Status: </span>
+                        </div>
+                    </div>
+
+                        <!-- Pie chart + contamination -->
+                        <div class="stats-row">
+                            <div class="pie-card">
+                                <div class="pie-chart-placeholder">
+                                    <div class="pie"></div>
+                                    <span class="pie-label">Defects by Type</span>
+                                </div>
+                                <div class="stats-numbers">
+                                    <div class="stat-item"><span class="stat-label">Total Defects</span><span class="stat-value" id="totalDefects">0</span></div>
+                                    <div class="stat-item"><span class="stat-label">Cleanliness</span><span class="stat-value" id="cleanlinessScore">0%</span></div>
+                                    <div class="stat-item"><span class="stat-label">Structural Issues</span><span class="stat-value" id="structuralIssues">0</span></div>
+                                    <div class="stat-item"><span class="stat-label">Contamination</span><span class="stat-value" id="contaminationScore">—</span></div>
+                                </div>
+                            </div>
+                            <div class="contamination-card">
+                                <h4 class="contamination-title">Contamination Level</h4>
+                                <div class="cont-scale-vertical">
+                                    <div class="cont-scale-header"><span>Level</span><span id="contScaleValueText">—</span></div>
+                                    <div class="cont-scale-bar-vertical" id="contScaleBarVertical">
+                                        <div class="cont-box-vertical" data-level="1"></div>
+                                        <div class="cont-box-vertical" data-level="2"></div>
+                                        <div class="cont-box-vertical" data-level="3"></div>
+                                        <div class="cont-box-vertical" data-level="4"></div>
+                                        <div class="cont-box-vertical" data-level="5"></div>
+                                        <div class="cont-box-vertical" data-level="6"></div>
+                                        <div class="cont-box-vertical" data-level="7"></div>
+                                        <div class="cont-box-vertical" data-level="8"></div>
+                                        <div class="cont-box-vertical" data-level="9"></div>
+                                    </div>
+                                    <div class="cont-scale-label">Cleaning estimate based on findings.</div>
+                                </div>
+                            </div>
+                        </div>
+
+                        <!-- Inspection Results Table -->
+                        <div class="inspection-table-container">
+                            <div class="table-header">
+                                <h3 class="table-title">Inspection Results</h3>
+                                <div class="legend-row">
+                                    <div class="legend-item"><span class="legend-color legend-low"></span> Low (0–30)</div>
+                                    <div class="legend-item"><span class="legend-color legend-medium"></span> Medium (31–70)</div>
+                                    <div class="legend-item"><span class="legend-color legend-high"></span> High (71–100)</div>
+                                </div>
+                            </div>
+                            <table class="inspection-table">
+                                <thead>
+                                    <tr>
+                                        <th>Defect</th>
+                                        <th>Pre Wash</th>
+                                        <th>After Wash</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="inspectionTableBody">
+                                    <tr><td class="defect-name">Cracks</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Dents</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Rust & Corrosion</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Holes</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Dust & Powder</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Oil & Stains</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                    <tr><td class="defect-name">Floor Structural Damage</td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td><td><div class="severity-slim-container"><div class="severity-slim-bar"></div></div></td></tr>
+                                </tbody>
+                            </table>
+
+                            <!-- Save buttons -->
+                                <div class="save-actions-row">
+                                    <button id="btnDownloadReport" class="btn btn-accent">📄 Download Report</button>
+                                    <button id="btnSaveToDatabase" class="btn btn-accent">💾 Save to Database</button>
+                                </div>
+                        </div>
+                    </section>
+                </div>
+            </div>
+            <!-- End of index wrapper -->
+
+            <!-- Dynamic container for other pages (history, settings, about) -->
+            <div id="page-dynamic" style="display: none;"></div>
+        </div>
+
+        <!-- Footer (fixed) -->
+        <div class="footer-wrapper">
+            <div class="page">
+                <footer class="app-footer">
+                    <span>&copy; 2025 MCS Robotics. All rights reserved.</span>
+                    <div class="footer-status">
+                        <span>Backend: <span id="backendStatus">reachable</span></span>
+                        <span class="powered-by">Powered by MCS Robotics</span>
+                    </div>
+                </footer>
+            </div>
+        </div>
+    </div>
+
+    <!-- Shared JavaScript (global functions, navigation helpers, etc.) -->
+    <script src="/assets/js/scripts.js"></script>
+    <script>
+        window.__historyNavigationEnabled = true;
+    </script>
+    <script src="/assets/js/history.js"></script>
+
+    <!-- Updated navigation script (preserves index state) -->
+    <script>
+    (function() {
+        const mainContainer = document.getElementById('mainContentContainer');
+        const indexPage = document.getElementById('page-index');
+        const dynamicContainer = document.getElementById('page-dynamic');
+        const navLinks = document.querySelectorAll('.collapsible-nav a');
+        const headerTitleSpan = document.querySelector('.company-name');
+        const defaultHeaderTitle = headerTitleSpan
+            ? headerTitleSpan.textContent.trim()
+            : 'Container Inspection System';
+
+        const pageTitles = {
+            'index.html': defaultHeaderTitle,
+            'history.html': 'History',
+            'settings.html': 'Settings',
+            'about-us.html': 'About Us'
+        };
+
+        function setActiveLink(url) {
+            const currentPage = url.split('/').pop() || 'index.html';
+            navLinks.forEach(link => {
+                const linkHref = link.getAttribute('href');
+                const navItem = link.closest('.collapsible-nav-item');
+                if (navItem) {
+                    navItem.classList.toggle('active', linkHref === currentPage);
+                }
+            });
+        }
+
+        function updateHeaderTitle(url) {
+            const fileName = url.split('/').pop() || 'index.html';
+            headerTitleSpan.textContent = pageTitles[fileName] ?? defaultHeaderTitle;
+        }
+
+        const pageInitMap = {
+            'history.html': window.initHistoryPage,
+            'settings.html': window.initSettings,
+            'about-us.html': window.initAbout
+        };
+
+        async function executeScriptsFromContainer(container) {
+            const scriptPromises = [];
+            container.querySelectorAll('script').forEach((oldScript) => {
+                const newScript = document.createElement('script');
+                Array.from(oldScript.attributes).forEach((attr) => newScript.setAttribute(attr.name, attr.value));
+                if (oldScript.src) {
+                    scriptPromises.push(new Promise((resolve, reject) => {
+                        newScript.onload = resolve;
+                        newScript.onerror = reject;
+                    }));
+                }
+                newScript.textContent = oldScript.textContent;
+                oldScript.replaceWith(newScript);
+            });
+            await Promise.all(scriptPromises);
+        }
+
+        async function loadContent(url) {
+            if (url === 'index.html' || url === '' || url === '/') {
+                // Show index, hide dynamic
+                indexPage.style.display = 'block';
+                dynamicContainer.style.display = 'none';
+                dynamicContainer.innerHTML = '';
+                setActiveLink('index.html');
+                updateHeaderTitle('index.html');
+                history.pushState({ url: 'index.html' }, '', 'index.html');
+                return;
+            }
+
+            try {
+                const response = await fetch(url);
+                if (!response.ok) throw new Error(`HTTP ${response.status}`);
+                const html = await response.text();
+
+                // Hide index, show dynamic with fetched content
+                indexPage.style.display = 'none';
+                dynamicContainer.style.display = 'block';
+                dynamicContainer.innerHTML = html;
+                
+                setActiveLink(url);
+                updateHeaderTitle(url);
+                history.pushState({ url }, '', url);
+
+                // Run page‑specific initializer
+                const initFn = pageInitMap[url];
+                await executeScriptsFromContainer(dynamicContainer);
+                if (initFn && typeof initFn === 'function') initFn();
+            } catch (error) {
+                console.error('Failed to load page:', error);
+                dynamicContainer.innerHTML = `<div class="error-message" style="padding:2rem;text-align:center;">Failed to load content. Please try again.</div>`;
+            }
+        }
+
+        // Initial page load
+        const initialPath = window.location.pathname.split('/').pop() || 'index.html';
+        loadContent(initialPath);
+
+        // Navigation click handling
+        navLinks.forEach(link => {
+            link.addEventListener('click', function(e) {
+                e.preventDefault();
+                loadContent(this.getAttribute('href'));
+            });
+        });
+
+        // Browser back/forward
+        window.addEventListener('popstate', function(e) {
+            if (e.state && e.state.url) loadContent(e.state.url);
+            else loadContent('index.html');
+        });
+    })();
+    </script>
+</body>
+</html>

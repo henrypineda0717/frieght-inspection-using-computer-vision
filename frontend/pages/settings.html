@@ -1,0 +1,165 @@
+<div class="card settings-page">
+    <!-- <h2>
+        <i class="fas fa-cog"></i>
+        System Settings
+    </h2> -->
+
+    <!-- Settings grid (sections unchanged – same as before but with compact CSS) -->
+    <div class="settings-grid">
+        <!-- General -->
+        <div class="settings-section">
+            <h3><i class="fas fa-sliders-h"></i> General</h3>
+            <div class="form-row">
+                <label for="default-stage"><i class="far fa-clock"></i> Default Stage</label>
+                <select id="default-stage">
+                    <option value="pre">Pre‑wash</option>
+                    <option value="post" selected>Post‑wash</option>
+                </select>
+            </div>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Auto‑save inspection results</span>
+            </div>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Generate PDF reports</span>
+            </div>
+        </div>
+
+        <!-- Camera -->
+        <div class="settings-section">
+            <h3><i class="fas fa-camera"></i> Camera</h3>
+            <div class="form-row">
+                <label for="video-source">Video source</label>
+                <input type="text" id="video-source" value="/dev/video0" placeholder="e.g., /dev/video0">
+            </div>
+            <div class="form-row">
+                <label for="resolution">Resolution</label>
+                <select id="resolution">
+                    <option>1920x1080</option>
+                    <option selected>1280x720</option>
+                    <option>640x480</option>
+                </select>
+            </div>
+            <div class="form-row">
+                <label for="framerate">Frame rate (fps)</label>
+                <input type="number" id="framerate" min="1" max="60" value="30">
+            </div>
+            <div class="form-row">
+                <label for="exposure">Exposure compensation</label>
+                <div class="range-with-value">
+                    <input type="range" id="exposure" min="-2" max="2" step="0.1" value="0">
+                    <span>0.0</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Detection -->
+        <div class="settings-section">
+            <h3><i class="fas fa-search"></i> Detection</h3>
+            <div class="form-row">
+                <label for="sensitivity">Sensitivity</label>
+                <div class="range-with-value">
+                    <input type="range" id="sensitivity" min="0" max="100" value="75">
+                    <span>75%</span>
+                </div>
+            </div>
+            <div class="form-row">
+                <label for="min-size">Min. detection size (px)</label>
+                <input type="number" id="min-size" min="10" value="50" step="5">
+            </div>
+            <div class="form-row">
+                <label for="cont-threshold">Contamination threshold (%)</label>
+                <input type="number" id="cont-threshold" min="0" max="100" value="15">
+            </div>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Dark spot detection</span>
+            </div>
+        </div>
+
+        <!-- Alerts -->
+        <div class="settings-section">
+            <h3><i class="fas fa-bell"></i> Alerts</h3>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox" checked>
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Visual alerts</span>
+            </div>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Sound on alert</span>
+            </div>
+            <div class="form-row">
+                <label for="email">Email notifications</label>
+                <input type="email" id="email" placeholder="admin@company.com" value="ops@mcsrobotics.com">
+            </div>
+            <div class="form-row">
+                <label for="alert-threshold">Alert threshold</label>
+                <input type="number" id="alert-threshold" min="1" value="3">
+            </div>
+        </div>
+
+        <!-- Advanced -->
+        <div class="settings-section">
+            <h3><i class="fas fa-microchip"></i> Advanced</h3>
+            <div class="form-row">
+                <label for="ai-model">AI Model</label>
+                <select id="ai-model">
+                    <option>Standard (v2.1)</option>
+                    <option selected>High Accuracy (v2.3)</option>
+                    <option>Fast Inference (v1.9)</option>
+                </select>
+            </div>
+            <div class="checkbox-row">
+                <label class="toggle-switch">
+                    <input type="checkbox">
+                    <span class="toggle-slider"></span>
+                </label>
+                <span class="toggle-label">Debug logging</span>
+            </div>
+            <div class="form-row">
+                <label for="api-endpoint">API endpoint</label>
+                <input type="text" id="api-endpoint" placeholder="http://localhost:5000/api">
+            </div>
+        </div>
+    </div>
+
+    <!-- Action buttons -->
+    <div class="settings-actions">
+        <button class="btn btn-secondary"><i class="fas fa-undo-alt"></i> Reset</button>
+        <button class="btn btn-primary"><i class="fas fa-save"></i> Save</button>
+    </div>
+</div>
+
+<script>
+    (function() {
+        document.querySelectorAll('.range-with-value input[type="range"]').forEach(range => {
+            const span = range.nextElementSibling;
+            if (!span) return;
+            const update = () => {
+                let value = range.value;
+                if (range.step === '0.1') {
+                    value = parseFloat(value).toFixed(1);
+                }
+                span.textContent = value + (range.max === '100' ? '%' : '');
+            };
+            range.addEventListener('input', update);
+            update();
+        });
+    })();
+</script>
