@@ -64,15 +64,9 @@
                         <span class="company-name">CONTAINER INSPECTION SYSTEM</span>
                     </div>
                     <div class="app-bar-right">
-                        <div class="contact-info">
-                            <div class="contact-item">
-                                <i class="fas fa-envelope"></i>
-                                <span>support@mcsrobotics.com</span>
-                            </div>
-                            <div class="contact-item">
-                                <i class="fas fa-phone-alt"></i>
-                                <span>+1 (800) 555‑1234</span>
-                            </div>
+                        <div class="header-icons">
+                            <i class="fas fa-cog" id="settingsIcon" title="Camera Settings"></i>
+                            <i class="fas fa-user-circle" id="profileIcon" title="Profile"></i>
                         </div>
                     </div>
                 </header>
@@ -103,37 +97,42 @@
                             <div class="controls-column">
                                 <!-- Row 1: Choose button + filename -->
                                 <div class="choose-row control-row">
-                                    <div class="choose-file-group">
-                                        <label for="fileInput" class="btn btn-primary status-summary-style"><i class="fas fa-folder-open"></i> Choose</label>
-                                        <input type="file" id="fileInput" accept="image/*,video/*">
-                                        <span id="fileNameDisplay" class="file-name">No file chosen</span>
+                                    <div class="choose-block">
+                                        <div class="choose-file-group">
+                                            <label for="fileInput" class="btn btn-primary status-summary-style"><i class="fas fa-folder-open"></i> Choose</label>
+                                            <input type="file" id="fileInput" accept="image/*,video/*">
+                                            <span id="fileNameDisplay" class="file-name">No file chosen</span>
+                                        </div>
+                                        <div class="choose-tip">
+                                            <i class="fas fa-circle-info"></i>
+                                            <span>Tip: Drag and drop media into the preview area.</span>
+                                        </div>
                                     </div>
-                                    <button id="btnAuto" class="btn btn-secondary"><i class="fas fa-sync-alt"></i> Auto: off</button>
-                                </div>
-                                <div class="control-hint">
-                                    <i class="fas fa-circle-info"></i>
-                                    <span>Tip: Drag and drop media into the preview area.</span>
+                                    <div class="camera-block">
+                                        <span class="camera-picker-label">Select camera</span>
+                                        <select id="cameraDropdown" class="control-dropdown camera-dropdown">
+                                            <option value="">No cameras configured</option>
+                                        </select>
+                                    </div>
                                 </div>
 
                                 <!-- Row 2: Analysis parameters -->
                                 <div class="analysis-controls control-row">
                                     <div class="analysis-group">
-                                        <span class="control-label-full">Damage sensitivity:</span>
-                                        <div class="toggle-group">
-                                            <button id="btnSensitivityLow" class="btn btn-secondary btn-stage" data-value="low">Low</button>
-                                            <button id="btnSensitivityMedium" class="btn btn-secondary btn-stage" data-value="medium">Medium</button>
-                                            <button id="btnSensitivityHigh" class="btn btn-secondary btn-stage" data-value="high">High</button>
-                                        </div>
-                                        <span id="damageSensitivityLabel" class="selection-state">Damage: Medium</span>
+                                        <label class="control-label-full" for="damageSensitivitySelect">Damage sensitivity:</label>
+                                        <select id="damageSensitivitySelect" class="control-dropdown">
+                                            <option value="low">Low</option>
+                                            <option value="medium">Medium</option>
+                                            <option value="high">High</option>
+                                        </select>
                                     </div>
                                     <div class="analysis-group">
-                                        <span class="control-label-full">Dark spots:</span>
-                                        <div class="toggle-group">
-                                            <button id="btnSpotAuto" class="btn btn-secondary btn-stage" data-value="auto">Auto</button>
-                                            <button id="btnSpotMold" class="btn btn-secondary btn-stage" data-value="mold_only">Mold Only</button>
-                                            <button id="btnSpotOff" class="btn btn-secondary btn-stage" data-value="off">Off</button>
-                                        </div>
-                                        <span id="spotModeLabel" class="selection-state">Dark spots: Auto</span>
+                                        <label class="control-label-full" for="darkSpotSelect">Dark spots:</label>
+                                        <select id="darkSpotSelect" class="control-dropdown">
+                                            <option value="auto">Auto</option>
+                                            <option value="mold_only">Mold Only</option>
+                                            <option value="off">Off</option>
+                                        </select>
                                     </div>
                                 </div>
 
@@ -142,7 +141,6 @@
                                     <span class="control-label-full">Inspection stage:</span>
                                     <button id="btnStagePre" class="btn btn-secondary btn-stage">Pre Wash</button>
                                     <button id="btnStagePost" class="btn btn-secondary btn-stage">Post Wash</button>
-                                    <span id="stageLabel" class="selection-state">Stage: none</span>
                                 </div>
 
                                 <!-- Row 4: View type controls -->
@@ -150,7 +148,6 @@
                                     <span class="control-label-full">View type:</span>
                                     <button id="btnViewExterior" class="btn btn-secondary btn-stage">Exterior</button>
                                     <button id="btnViewInterior" class="btn btn-secondary btn-stage">Interior</button>
-                                    <span id="viewLabel" class="selection-state">View: none</span>
                                 </div>
 
                                 <!-- Row 6: Analyze & Auto buttons -->
@@ -159,11 +156,6 @@
                                 </div>
 
                                 <!-- Row 5: Playback controls -->
-                                <div class="playback-controls control-row">
-                                    <button id="btnPlay" class="btn btn-play"><i class="fas fa-play"></i> Play</button>
-                                    <button id="btnPause" class="btn btn-pause"><i class="fas fa-pause"></i> Pause</button>
-                                    <button id="btnStop" class="btn btn-stop"><i class="fas fa-stop"></i> Stop</button>
-                                </div>
                             </div>
                         </div>
 
@@ -280,17 +272,42 @@
         <div class="footer-wrapper">
             <div class="page">
                 <footer class="app-footer">
-                    <span>&copy; 2025 MCS Robotics. All rights reserved.</span>
-                    <div class="footer-status">
-                        <span>Backend: <span id="backendStatus">reachable</span></span>
-                        <span class="powered-by">Powered by MCS Robotics</span>
-                    </div>
+                    <span class="footer-text">&copy; 2025 MCS Robotics. All rights reserved.</span>
+                    <a class="footer-contact-item" href="tel:+18005551234"><i class="fas fa-phone-alt"></i><span>+1 (800) 555‑1234</span></a>
+                    <a class="footer-contact-item" href="mailto:support@mcsrobotics.com"><i class="fas fa-envelope"></i><span>support@mcsrobotics.com</span></a>
+                    <span class="footer-status"><span class="powered-by">Powered by MCS Robotics</span></span>
                 </footer>
             </div>
         </div>
     </div>
 
+    <div id="cameraModal" class="modal hidden">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Configure IP camera</h3>
+                <button id="cameraModalClose" class="modal-close" type="button" aria-label="Close dialog">&times;</button>
+            </div>
+            <div class="modal-body">
+                <label for="cameraNameInput">Camera name</label>
+                <input type="text" id="cameraNameInput" placeholder="Dock 4, Gate A" />
+                <label for="cameraUrlInput">Stream URL</label>
+                <input type="text" id="cameraUrlInput" placeholder="rtsp://192.168.1.55:554/stream" />
+            </div>
+            <div class="modal-cameras">
+                <h4>Saved cameras</h4>
+                <ul id="cameraList" class="camera-list">
+                    <li class="camera-list-placeholder">No cameras added yet.</li>
+                </ul>
+            </div>
+            <div class="modal-actions">
+                <button id="cameraModalCancel" class="btn btn-secondary">Cancel</button>
+                <button id="cameraModalSave" class="btn btn-primary">Save camera</button>
+            </div>
+        </div>
+    </div>
+
     <!-- Shared JavaScript (global functions, navigation helpers, etc.) -->
+    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.2/dist/hls.min.js"></script>
     <script src="/assets/js/scripts.js"></script>
     <script>
         window.__historyNavigationEnabled = true;

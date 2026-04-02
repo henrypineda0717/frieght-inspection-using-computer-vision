@@ -40,7 +40,7 @@
     --shadow-sm: 0 1px 2px rgba(0,0,0,0.05);
 
     /* Fixed header/footer heights */
-    --header-height: 60px;
+    --header-height: 52px;
     --footer-height: 40px;
     --appbar-gradient: linear-gradient(180deg, #0d0b0d 0%, #0f0d0f 55%, #10100f 75%, #121311 90%, #141513 100%);
     --appbar-color: #0d0b0d;
@@ -89,6 +89,7 @@ body {
     align-items: flex-start;
     padding: 78px 0 12px;
     gap: 6px;
+
     z-index: 30;
     overflow: visible;
 }
@@ -210,8 +211,8 @@ body {
 }
 
 .company-name {
-    font-size: 1.6rem;
-    font-weight: 900;
+    font-size: 1.4rem;
+    font-weight: 700;
     padding-left: 16px;
     color: inherit;
     font-family: inherit;
@@ -220,7 +221,24 @@ body {
 .app-bar-right {
     display: flex;
     align-items: center;
-    gap: 20px;
+    gap: 12px;
+    margin-left: auto;
+    flex: 0 0 auto;
+}
+
+.header-icons {
+    display: flex;
+    gap: 16px;
+}
+
+.header-icons i {
+    font-size: 1.3rem;
+    cursor: pointer;
+    transition: opacity 0.2s ease;
+}
+
+.header-icons i:hover {
+    opacity: 0.8;
 }
 
 .contact-info {
@@ -311,15 +329,32 @@ body {
     gap: 10px;
 }
 
-.analysis-controls .toggle-group {
-    display: inline-flex;
-    gap: 6px;
+.control-dropdown {
+    min-width: 170px;
+    padding: 6px 10px;
+    border-radius: 10px;
+    border: 1px solid rgba(255, 255, 255, 0.25);
+    background: #1f2228;
+    color: #d1d5db;
+    font-size: 0.85rem;
+    transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
-.analysis-controls .toggle-group .btn {
-    min-width: 68px;
-    padding: 4px 10px;
-    font-size: 0.74rem;
+.control-dropdown:focus {
+    outline: none;
+    border-color: #f97316;
+    box-shadow: 0 0 0 2px rgba(249, 115, 22, 0.25);
+}
+
+.control-dropdown option {
+    background: #1f2228;
+    color: #d1d5db;
+}
+
+.control-dropdown option:hover,
+.control-dropdown option:focus {
+    background: #f97316;
+    color: #0b0c10;
 }
 
 /* Active state for inspection stage and view type buttons */
@@ -386,16 +421,27 @@ body {
 .preview-controls-row {
     flex: 3 1 75%;
     display: flex;
-    gap: 12px;
+    gap: 24px;
     align-items: stretch;
     min-height: 0;
 }
 
 .preview-column {
-    flex: 0 0 60%;
+    flex: 1 1 auto;
     min-width: 0;
 }
 
+.controls-column {
+    flex: 0 0 420px;
+    display: flex;
+    flex-direction: column;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 10px 20px rgba(0, 0, 0, 0.28);
+}
 .video-container {
     position: relative;
     background-color: rgba(255, 255, 255, 0.02);
@@ -477,12 +523,15 @@ canvas#overlay {
 }
 
 .controls-column {
-    flex: 0 0 40%;
+    flex: 0 0 420px;
     display: flex;
     flex-direction: column;
-    gap: 10px;
-    height: 100%;
-    padding-right: 10px;
+    gap: 16px;
+    padding: 16px;
+    background: rgba(255, 255, 255, 0.02);
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    box-shadow: 0 16px 30px rgba(0, 0, 0, 0.35);
 }
 
 .control-row {
@@ -498,19 +547,35 @@ canvas#overlay {
 .choose-row {
     display: flex;
     flex-wrap: wrap;
-    align-items: center;
+    gap: 16px;
+    align-items: flex-start;
     justify-content: space-between;
-    gap: 8px;
 }
 
 .choose-row .btn {
     padding: 5px 10px;
 }
 
+.choose-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 260px;
+}
+
+.choose-tip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.8rem;
+    color: var(--text-secondary);
+}
+
 .choose-file-group {
     display: flex;
     align-items: center;
     gap: 8px;
+    flex-wrap: wrap;
 }
 
 #fileInput {
@@ -525,6 +590,30 @@ canvas#overlay {
     text-overflow: ellipsis;
     white-space: nowrap;
     font-weight: 600;
+}
+
+.camera-block {
+    display: flex;
+    flex-direction: column;
+    gap: 6px;
+    min-width: 180px;
+}
+
+.camera-picker {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    flex-wrap: wrap;
+}
+
+.camera-picker-label {
+    font-size: 0.8rem;
+    font-weight: 600;
+    color: var(--text-primary);
+}
+
+.camera-dropdown {
+    min-width: 200px;
 }
 
 .control-hint {
@@ -596,17 +685,6 @@ select option {
     font-weight: 600;
     font-size: 0.8rem;
     color: var(--text-primary);
-}
-
-.selection-state {
-    margin-left: auto;
-    font-size: 0.68rem;
-    font-weight: 600;
-    color: var(--text-primary);
-    background: rgba(255, 255, 255, 0.05);
-    padding: 4px 8px;
-    border-radius: var(--radius-full);
-    border: 1px solid rgba(255, 255, 255, 0.15);
 }
 
 .playback-controls {
@@ -1049,8 +1127,40 @@ select option {
     height: var(--footer-height);
     color: var(--appbar-text);
     font-size: 0.75rem;
-    gap: 12px;
     font-family: 'Geometric Sans-Serif', 'Inter', sans-serif;
+    gap: 32px;
+    flex-wrap: nowrap;
+    width: 100%;
+    padding: 0 32px;
+}
+
+.footer-contact-item {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    color: inherit;
+    text-decoration: none;
+    transition: opacity 0.2s ease;
+}
+
+.footer-contact-item i {
+    font-size: 0.85rem;
+}
+
+.footer-contact-item:hover {
+    opacity: 0.8;
+}
+
+.footer-text {
+    white-space: nowrap;
+}
+
+.footer-status {
+    white-space: nowrap;
+}
+
+.footer-contact-item span {
+    white-space: nowrap;
 }
 
 .powered-by {
@@ -1667,6 +1777,8 @@ input:checked + .toggle-slider:before {
     .preview-column,
     .controls-column {
         flex: 1 1 auto;
+        padding: 14px;
+        background: rgba(255, 255, 255, 0.025);
     }
 
     .video-container {
@@ -1716,10 +1828,6 @@ input:checked + .toggle-slider:before {
         height: 320px;
     }
 
-    .selection-state {
-        margin-left: 0;
-    }
-
     .summary-header,
     .save-actions-row,
     .choose-row,
@@ -1727,6 +1835,117 @@ input:checked + .toggle-slider:before {
         flex-direction: column;
         align-items: flex-start;
     }
+}
+
+/* ===== MODAL ===== */
+.modal.hidden {
+    display: none;
+}
+
+.modal {
+    position: fixed;
+    inset: 0;
+    background: rgba(0, 0, 0, 0.65);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    z-index: 200;
+    padding: 16px;
+}
+
+.modal-content {
+    background: #0f1115;
+    border-radius: 16px;
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    padding: 24px;
+    width: min(420px, 100%);
+    box-shadow: 0 12px 24px rgba(0, 0, 0, 0.5);
+}
+
+.modal-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 16px;
+}
+
+.modal-body {
+    display: flex;
+    flex-direction: column;
+    gap: 10px;
+    margin-bottom: 16px;
+}
+
+.modal-body input {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.2);
+    border-radius: 8px;
+    padding: 8px 10px;
+    color: #fff;
+    font-family: inherit;
+}
+
+.modal-close {
+    background: none;
+    border: none;
+    font-size: 1.4rem;
+    color: var(--text-primary);
+    cursor: pointer;
+}
+
+.modal-actions {
+    display: flex;
+    justify-content: flex-end;
+    gap: 8px;
+}
+
+.modal-cameras {
+    margin-bottom: 16px;
+}
+
+.modal-cameras h4 {
+    font-size: 0.9rem;
+    margin-bottom: 8px;
+    color: var(--text-primary);
+}
+
+.camera-list {
+    list-style: none;
+    margin: 0;
+    padding: 0;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+}
+
+.camera-list-placeholder {
+    font-size: 0.85rem;
+    color: var(--text-secondary);
+}
+
+.camera-list-item {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 8px;
+    padding: 8px 10px;
+    border-radius: 10px;
+    background: rgba(255, 255, 255, 0.04);
+    border: 1px solid rgba(255, 255, 255, 0.08);
+    font-size: 0.8rem;
+}
+
+.camera-list-item button {
+    border: none;
+    background: transparent;
+    color: #ef4444;
+    cursor: pointer;
+    padding: 4px;
+    font-size: 0.9rem;
+}
+
+.camera-list-item button:hover {
+    color: #ff7b7b;
 }
 
 /* ===== RESPONSIVE FALLBACK ===== */

@@ -9,6 +9,8 @@ from app.database import init_db
 from app.api import api_router
 from app.utils import setup_logging
 from app.api.video_session import router as video_session_router
+from app.api.camera_stream import router as camera_stream_router
+from app.api.config import HLS_BASE_DIR
 
 app = FastAPI(
     title=settings.APP_NAME,
@@ -55,6 +57,7 @@ async def startup_event():
 
 app.include_router(api_router, prefix="/api")
 app.include_router(video_session_router)
+app.include_router(camera_stream_router)
 
 # ---------- MOVED THESE FOUR ENDPOINTS BEFORE STATIC MOUNTS ----------
 @app.get("/")
@@ -93,8 +96,6 @@ async def health_check():
 # ---------------------------------------------------------------------
 
 # Static mounts (exactly as in your original)
-from fastapi.staticfiles import StaticFiles
-
 frontend_dir = settings.ROOT_DIR / "frontend"
 
 if frontend_dir.exists():
@@ -104,8 +105,11 @@ if frontend_dir.exists():
     if assets_dir.exists():
         app.mount("/assets", StaticFiles(directory=str(assets_dir)), name="assets")
 
-    if pages_dir.exists():
-        app.mount("/", StaticFiles(directory=str(pages_dir), html=True), name="pages")
+if pages_dir.exists():
+    app.mount("/", StaticFiles(directory=str(pages_dir), html=True), name="pages")
+
+# Serve HLS output directory
+app.mount("/hls", StaticFiles(directory=str(HLS_BASE_DIR)), name="hls")
 
 # Optional storage mount
 if settings.STORAGE_ROOT.exists():

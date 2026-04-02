@@ -16,20 +16,14 @@ window.addEventListener('DOMContentLoaded', () => {
   const ctx = canvas ? canvas.getContext('2d', { alpha: true }) : null;
   const fileInput = getElement('fileInput');
   const fileNameDisplay = getElement('fileNameDisplay');
-  const btnPlay = getElement('btnPlay');
-  const btnPause = getElement('btnPause');
-  const btnStop = getElement('btnStop');
   const btnAnalyze = getElement('btnAnalyze');
   const btnDownloadReport = getElement('btnDownloadReport');
   let btnSaveToDatabase = getElement('btnSaveToDatabase');
-  const btnAuto = getElement('btnAuto');
   const backendStatus = getElement('backendStatus');
   const btnStagePre = getElement('btnStagePre');
   const btnStagePost = getElement('btnStagePost');
-  const stageLabel = getElement('stageLabel');
   const btnViewExterior = getElement('btnViewExterior');
   const btnViewInterior = getElement('btnViewInterior');
-  const viewLabel = getElement('viewLabel');
   const summaryContainerId = getElement('summaryContainerId');
   const summaryStatusBadge = getElement('summaryStatusBadge');
   const summaryStageBadge = getElement('summaryStageBadge');
@@ -41,14 +35,17 @@ window.addEventListener('DOMContentLoaded', () => {
   const totalDefectsSpan = getElement('totalDefects');
   const cleanlinessSpan = getElement('cleanlinessScore');
   const structuralIssuesSpan = getElement('structuralIssues');
-  const btnSensitivityLow = getElement('btnSensitivityLow');
-  const btnSensitivityMedium = getElement('btnSensitivityMedium');
-  const btnSensitivityHigh = getElement('btnSensitivityHigh');
-  const btnSpotAuto = getElement('btnSpotAuto');
-  const btnSpotMold = getElement('btnSpotMold');
-  const btnSpotOff = getElement('btnSpotOff');
-  const damageSensitivityLabel = getElement('damageSensitivityLabel');
-  const spotModeLabel = getElement('spotModeLabel');
+  const damageSensitivitySelect = getElement('damageSensitivitySelect');
+  const darkSpotSelect = getElement('darkSpotSelect');
+  const cameraDropdown = getElement('cameraDropdown');
+  const settingsIcon = getElement('settingsIcon');
+  const cameraModal = getElement('cameraModal');
+  const cameraModalClose = getElement('cameraModalClose');
+  const cameraModalCancel = getElement('cameraModalCancel');
+  const cameraModalSave = getElement('cameraModalSave');
+  const cameraNameInput = getElement('cameraNameInput');
+  const cameraUrlInput = getElement('cameraUrlInput');
+  const cameraListEl = getElement('cameraList');
   const workspaceEmptyState = getElement('workspaceEmptyState');
   const videoContainer = document.querySelector('.video-container');
 
@@ -57,7 +54,7 @@ window.addEventListener('DOMContentLoaded', () => {
     return;
   }
 
-  // ---------- MJPEG stream element ----------
+  // ---------- MJPEG stream element (used for video-session playback) ----------
   const mjpegImg = document.createElement('img');
   mjpegImg.id = 'mjpegStream';
   mjpegImg.style.display = 'none';
@@ -114,8 +111,6 @@ window.addEventListener('DOMContentLoaded', () => {
   let lastAnalysisResult = null;
   let currentImageData = null;
   let currentImageObject = null;
-  let autoAnalyze = false;
-  let autoTimer = null;
   let analyzing = false;
   let currentStage = null;
   let currentView = null;
@@ -128,6 +123,12 @@ window.addEventListener('DOMContentLoaded', () => {
   let pollingInterval = null;
   let currentVideoFile = null;
   let currentVideoFrameBlob = null; // For storing the first frame of the video
+  const CAMERA_STORAGE_KEY = 'mcs_ip_cameras';
+  let cameraList = [];
+  let selectedCameraUrl = '';
+  let activeCameraStreamId = '';
+  let activeCameraConfig = null;
+  let hlsPlayer = null;
 
   // ---------- Helper functions ----------
   function updateBackendStatus(text, ok = false) {
@@ -169,6 +170,133 @@ window.addEventListener('DOMContentLoaded', () => {
   function updateFilePresentation(file = null) {
     if (fileNameDisplay) {
       fileNameDisplay.textContent = file ? file.name : 'No file chosen';
+    }
+  }
+
+  function destroyHlsPlayer() {
+    if (hlsPlayer) {
+      hlsPlayer.destroy();
+      hlsPlayer = null;
+    }
+    video.removeAttribute('src');
+    video.load();
+  }
+
+  function attachHlsStream(playlistUrl) {
+    if (!playlistUrl) return;
+    destroyHlsPlayer();
+    if (window.Hls && Hls.isSupported()) {
+      hlsPlayer = new Hls({ maxBufferLength: 30, enableWorker: true });
+      hlsPlayer.on(Hls.Events.ERROR, (event, data) => {
+        if (data.fatal) {
+          console.error('HLS fatal error', data);
+          if (data.type === Hls.ErrorTypes.NETWORK_ERROR) {
+            hlsPlayer.startLoad();
+          } else {
+            stopCameraStream();
+          }
+        }
+      });
+      hlsPlayer.attachMedia(video);
+      hlsPlayer.on(Hls.Events.MANIFEST_PARSED, () => {
+        video.play().catch(() => {});
+      });
+      hlsPlayer.loadSource(playlistUrl);
+    } else if (video.canPlayType('application/vnd.apple.mpegurl')) {
+      video.src = playlistUrl;
+      video.addEventListener('loadedmetadata', () => {
+        video.play().catch(() => {});
+      }, { once: true });
+    } else {
+      alert('HLS playback is not supported by this browser.');
+    }
+  }
+
+  function sleep(ms) {
+    return new Promise((resolve) => setTimeout(resolve, ms));
+  }
+
+  async function waitForPlaylist(camId, timeoutMs = 10000) {
+    const deadline = Date.now() + timeoutMs;
+    while (Date.now() < deadline) {
+      try {
+        const resp = await fetch(`${API_BASE}/camera-stream/status`);
+        if (!resp.ok) throw new Error('Status check failed');
+        const status = await resp.json();
+        if (status.cam_id === camId && status.ready) {
+          return true;
+        }
+      } catch (err) {
+        console.warn('Playlist readiness check failed', err);
+      }
+      await sleep(500);
+    }
+    return false;
+  }
+
+  async function stopCameraStream() {
+    if (activeCameraStreamId) {
+      try {
+        await fetch(`${API_BASE}/camera-stream/stop`, { method: 'POST' });
+      } catch (err) {
+        console.warn('Failed to notify backend to stop stream', err);
+      }
+      activeCameraStreamId = '';
+    }
+    destroyHlsPlayer();
+    video.pause();
+    video.style.display = 'block';
+    canvas.style.display = 'block';
+    selectedCameraUrl = '';
+    activeCameraConfig = null;
+    if (btnAnalyze) btnAnalyze.disabled = !!currentVideoFile ? false : true;
+    setWorkspaceEmptyState(true, 'Start a container inspection', 'Choose or drop media or select a camera to begin.');
+    updateBackendStatus('Camera stream stopped', false);
+  }
+
+  async function startCameraStream(config) {
+    if (!config?.source) return;
+    stopVideoSession();
+    await stopCameraStream();
+    currentVideoFile = null;
+    currentImageObject = null;
+    currentImageData = null;
+    lastDetections = [];
+    lastAnalysisResult = null;
+    updateInspectionTable([]);
+    updateStatsAndPie([], 1);
+    updateSummaryFromResponse({});
+    selectedCameraUrl = config.source;
+    activeCameraConfig = config;
+    updateBackendStatus('Starting camera stream...', true);
+    setWorkspaceEmptyState(false, 'Camera preview active', 'Streaming from selected camera.');
+    if (btnAnalyze) btnAnalyze.disabled = true;
+    try {
+      const response = await fetch(`${API_BASE}/camera-stream/start`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ name: config.name || 'Camera', source: config.source })
+      });
+      if (!response.ok) {
+        const detail = await response.text();
+        throw new Error(detail || 'Unable to start camera stream');
+      }
+      const data = await response.json();
+      activeCameraStreamId = data.cam_id;
+      const playlistUrl = `/hls/${data.cam_id}/playlist.m3u8`;
+      const ready = data.ready || (await waitForPlaylist(data.cam_id, 15000));
+      if (!ready) {
+        throw new Error('Playlist not ready yet; try again in a moment');
+      }
+      attachHlsStream(playlistUrl);
+      video.style.display = 'block';
+      canvas.style.display = 'none';
+      updateBackendStatus('Camera stream active', true);
+    } catch (err) {
+      console.error('Failed to start camera stream:', err);
+      updateBackendStatus('Camera stream failed', false);
+      alert(err.message || 'Unable to start camera stream.');
+      await stopCameraStream();
     }
   }
 
@@ -559,31 +687,18 @@ window.addEventListener('DOMContentLoaded', () => {
       btnStagePre.classList.toggle('active', stage === 'pre');
       btnStagePost.classList.toggle('active', stage === 'post');
     }
-    if (stageLabel) {
-      if (stage === 'pre') {
-        stageLabel.textContent = "Stage: Pre wash";
-      } else if (stage === 'post') {
-        stageLabel.textContent = "Stage: Post wash";
-      } else {
-        stageLabel.textContent = "Stage: none";
-      }
-    }
   }
 
   function setView(view) {
     currentView = view;
-    if (btnViewExterior && btnViewInterior && viewLabel) {
+    if (btnViewExterior && btnViewInterior) {
       btnViewExterior.classList.remove('active');
       btnViewInterior.classList.remove('active');
       if (view === 'exterior') {
         btnViewExterior.classList.add('active');
-        viewLabel.textContent = 'View: Exterior';
         resetDashboard(); // Clear dashboard for exterior view
       } else if (view === 'interior') {
         btnViewInterior.classList.add('active');
-        viewLabel.textContent = 'View: Interior';
-      } else {
-        viewLabel.textContent = 'View: none';
       }
     }
     if (currentSessionId && view) {
@@ -599,31 +714,127 @@ window.addEventListener('DOMContentLoaded', () => {
       .join(' ');
   }
 
-  function toggleButtonSet(buttons, selectedValue) {
-    buttons.forEach((btn) => {
-      if (!btn) return;
-      const matches = btn.dataset && btn.dataset.value === selectedValue;
-      btn.classList.toggle('active', matches);
-    });
-  }
-
   function setDamageSensitivity(value) {
     const normalized = value || 'medium';
     currentDamageSensitivity = normalized;
-    toggleButtonSet([btnSensitivityLow, btnSensitivityMedium, btnSensitivityHigh], normalized);
-    if (damageSensitivityLabel) {
-      damageSensitivityLabel.textContent = `Damage: ${prettifyLabel(normalized)}`;
-    }
+    if (damageSensitivitySelect) damageSensitivitySelect.value = normalized;
   }
 
   function setSpotMode(value) {
     const normalized = value || 'auto';
     currentSpotMode = normalized;
-    toggleButtonSet([btnSpotAuto, btnSpotMold, btnSpotOff], normalized);
-    if (spotModeLabel) {
-      spotModeLabel.textContent = `Dark spots: ${prettifyLabel(normalized)}`;
+    if (darkSpotSelect) darkSpotSelect.value = normalized;
+  }
+
+  function persistCameras() {
+    try {
+      localStorage.setItem(CAMERA_STORAGE_KEY, JSON.stringify(cameraList));
+    } catch (err) {
+      console.warn('Failed to persist camera list', err);
     }
   }
+
+  function renderCameraDropdown() {
+    if (!cameraDropdown) return;
+    cameraDropdown.innerHTML = '<option value=\"\">Select camera</option>';
+    cameraList.forEach((cam, idx) => {
+      const option = document.createElement('option');
+      option.value = cam.url;
+      option.textContent = cam.name || `Camera ${idx + 1}`;
+      cameraDropdown.appendChild(option);
+    });
+    if (selectedCameraUrl) {
+      cameraDropdown.value = selectedCameraUrl;
+    }
+  }
+
+  function renderCameraList() {
+    if (!cameraListEl) return;
+    cameraListEl.innerHTML = '';
+    if (cameraList.length === 0) {
+      const placeholder = document.createElement('li');
+      placeholder.className = 'camera-list-placeholder';
+      placeholder.textContent = 'No cameras added yet.';
+      cameraListEl.appendChild(placeholder);
+      return;
+    }
+    cameraList.forEach((cam, idx) => {
+      const item = document.createElement('li');
+      item.className = 'camera-list-item';
+      const label = document.createElement('span');
+      label.innerHTML = `<strong>${cam.name || `Camera ${idx + 1}`}</strong><br><small>${cam.url}</small>`;
+      item.appendChild(label);
+      const removeBtn = document.createElement('button');
+      removeBtn.type = 'button';
+      removeBtn.innerHTML = '&times;';
+      removeBtn.setAttribute('aria-label', 'Remove camera');
+      removeBtn.addEventListener('click', (event) => {
+        event.stopPropagation();
+        removeCameraAt(idx);
+      });
+      item.appendChild(removeBtn);
+      item.addEventListener('click', () => {
+        selectedCameraUrl = cam.url;
+        if (cameraDropdown) cameraDropdown.value = cam.url;
+        startCameraStream({ name: cam.name, source: cam.url }).catch(() => {});
+      });
+      cameraListEl.appendChild(item);
+    });
+  }
+
+  function removeCameraAt(index) {
+    if (index < 0 || index >= cameraList.length) return;
+    const [removed] = cameraList.splice(index, 1);
+    persistCameras();
+    if (selectedCameraUrl === removed.url) {
+      selectedCameraUrl = '';
+      stopCameraStream().catch(() => {});
+    }
+    renderCameraDropdown();
+    renderCameraList();
+  }
+
+  function loadSavedCameras() {
+    try {
+      const stored = localStorage.getItem(CAMERA_STORAGE_KEY);
+      cameraList = stored ? JSON.parse(stored) : [];
+    } catch (err) {
+      cameraList = [];
+    }
+    renderCameraDropdown();
+    renderCameraList();
+  }
+
+  function openCameraModal() {
+    if (!cameraModal) return;
+    cameraModal.classList.remove('hidden');
+    cameraNameInput?.focus();
+  }
+
+  function closeCameraModal() {
+    if (!cameraModal) return;
+    cameraModal.classList.add('hidden');
+    if (cameraNameInput) cameraNameInput.value = '';
+    if (cameraUrlInput) cameraUrlInput.value = '';
+  }
+
+  function saveCameraConfig() {
+    const name = cameraNameInput ? cameraNameInput.value.trim() : '';
+    const url = cameraUrlInput ? cameraUrlInput.value.trim() : '';
+    if (!url) {
+      alert('Please provide the stream URL for the camera.');
+      return;
+    }
+    cameraList.push({ name, url });
+    persistCameras();
+    renderCameraDropdown();
+    if (cameraDropdown) {
+      cameraDropdown.value = url;
+      startCameraStream({ name: name || `Camera`, source: url }).catch(() => {});
+    }
+    closeCameraModal();
+  }
+
 
   // ---------- Video session management ----------
   async function startVideoSession() {
@@ -656,9 +867,6 @@ window.addEventListener('DOMContentLoaded', () => {
       video.style.display = 'none';
       canvas.style.display = 'none';
 
-      if (btnStop) btnStop.disabled = false;
-      if (btnPause) btnPause.disabled = false;
-      if (btnPlay) btnPlay.disabled = false;
       if (btnDownloadReport) btnDownloadReport.disabled = false; // Enable download button
       if (btnAnalyze) btnAnalyze.disabled = true;
 
@@ -681,9 +889,6 @@ window.addEventListener('DOMContentLoaded', () => {
     stopPollingDetections();
     mjpegImg.src = '';
     mjpegImg.style.display = 'none';
-    if (btnStop) btnStop.disabled = true;
-    if (btnPause) btnPause.disabled = true;
-    if (btnPlay) btnPlay.disabled = true;
     video.style.display = 'block';
     canvas.style.display = 'block';
     if (ctx) ctx.clearRect(0, 0, canvas.width, canvas.height);
@@ -817,6 +1022,7 @@ window.addEventListener('DOMContentLoaded', () => {
 
     stopVideoSession();
     stopAutoAnalyze();
+    stopCameraStream().catch(() => {});
     updateFilePresentation(file);
     setWorkspaceEmptyState(false);
 
@@ -957,36 +1163,6 @@ window.addEventListener('DOMContentLoaded', () => {
   }
 
   // ---------- Button listeners ----------
-  if (btnPlay) {
-    btnPlay.addEventListener('click', () => {
-      if (currentSessionId) {
-        sendSessionCommand('resume');
-        startPollingDetections();
-      }
-    });
-  }
-
-  if (btnPause) {
-    btnPause.addEventListener('click', () => {
-      if (currentSessionId) {
-        sendSessionCommand('pause');
-        stopPollingDetections();
-      }
-    });
-  }
-
-  if (btnStop) {
-    btnStop.addEventListener('click', () => {
-      stopVideoSession();
-      if (fileInput) fileInput.value = '';
-      currentVideoFile = null;
-      currentImageData = null;
-      currentImageObject = null;
-      currentVideoFrameBlob = null;
-      if (btnAnalyze) btnAnalyze.disabled = true;
-    });
-  }
-
   if (btnAnalyze) {
     btnAnalyze.addEventListener('click', () => {
       if (currentVideoFile) {
@@ -1001,12 +1177,47 @@ window.addEventListener('DOMContentLoaded', () => {
   if (btnStagePost) btnStagePost.addEventListener('click', () => setStage('post'));
   if (btnViewExterior) btnViewExterior.addEventListener('click', () => setView('exterior'));
   if (btnViewInterior) btnViewInterior.addEventListener('click', () => setView('interior'));
-  if (btnSensitivityLow) btnSensitivityLow.addEventListener('click', () => setDamageSensitivity('low'));
-  if (btnSensitivityMedium) btnSensitivityMedium.addEventListener('click', () => setDamageSensitivity('medium'));
-  if (btnSensitivityHigh) btnSensitivityHigh.addEventListener('click', () => setDamageSensitivity('high'));
-  if (btnSpotAuto) btnSpotAuto.addEventListener('click', () => setSpotMode('auto'));
-  if (btnSpotMold) btnSpotMold.addEventListener('click', () => setSpotMode('mold_only'));
-  if (btnSpotOff) btnSpotOff.addEventListener('click', () => setSpotMode('off'));
+  if (damageSensitivitySelect) {
+    damageSensitivitySelect.addEventListener('change', (event) => setDamageSensitivity(event.target.value));
+  }
+  if (darkSpotSelect) {
+    darkSpotSelect.addEventListener('change', (event) => setSpotMode(event.target.value));
+  }
+  if (cameraDropdown) {
+    cameraDropdown.addEventListener('change', async (event) => {
+      const url = event.target.value;
+      selectedCameraUrl = url;
+      if (url) {
+        const cam = cameraList.find((c) => c.url === url) || { name: 'Camera' };
+        try {
+          await startCameraStream({ name: cam.name, source: url });
+        } catch (err) {
+          console.error('Camera stream change failed:', err);
+        }
+      } else {
+        await stopCameraStream();
+      }
+    });
+  }
+  if (video) {
+    video.addEventListener('error', () => {
+      if (activeCameraStreamId) {
+        stopCameraStream().catch(() => {});
+      }
+    });
+  }
+  if (settingsIcon) settingsIcon.addEventListener('click', openCameraModal);
+  if (cameraModalClose) cameraModalClose.addEventListener('click', closeCameraModal);
+  if (cameraModalCancel) cameraModalCancel.addEventListener('click', closeCameraModal);
+  if (cameraModalSave) cameraModalSave.addEventListener('click', saveCameraConfig);
+  if (cameraModal) {
+    cameraModal.addEventListener('click', (event) => {
+      if (event.target === cameraModal) closeCameraModal();
+    });
+  }
+  document.addEventListener('keydown', (event) => {
+    if (event.key === 'Escape') closeCameraModal();
+  });
 
   setDamageSensitivity(currentDamageSensitivity);
   setSpotMode(currentSpotMode);
@@ -1126,38 +1337,6 @@ window.addEventListener('DOMContentLoaded', () => {
     });
   }
 
-  // Auto analyze (images only)
-  if (btnAuto) {
-    btnAuto.addEventListener('click', () => {
-      autoAnalyze = !autoAnalyze;
-      if (autoAnalyze) {
-        btnAuto.textContent = "Auto: on";
-        btnAuto.classList.remove("secondary");
-        startAutoAnalyze();
-      } else {
-        btnAuto.textContent = "Auto: off";
-        btnAuto.classList.add("secondary");
-        stopAutoAnalyze();
-      }
-    });
-  }
-
-  function startAutoAnalyze() {
-    if (autoTimer) return;
-    autoTimer = setInterval(() => {
-      if (video && video.dataset.isImage === 'true' && !video.paused) {
-        analyzeCurrentFrame();
-      }
-    }, 2000);
-  }
-
-  function stopAutoAnalyze() {
-    if (autoTimer) {
-      clearInterval(autoTimer);
-      autoTimer = null;
-    }
-  }
-
   // ========== Recent Inspections Table ==========
   async function loadRecentInspections() {
     const tbody = document.getElementById('recentFilesBody');
@@ -1224,10 +1403,8 @@ window.addEventListener('DOMContentLoaded', () => {
   setWorkspaceEmptyState(true, 'Start a container inspection', 'Choose or drop an image/video to begin. For video sessions, select stage and view before running analysis.');
   if (btnDownloadReport) btnDownloadReport.disabled = true;
   if (btnSaveToDatabase) btnSaveToDatabase.disabled = true;
-  if (btnPlay) btnPlay.disabled = true;
-  if (btnPause) btnPause.disabled = true;
-  if (btnStop) btnStop.disabled = true;
 
+  loadSavedCameras();
   loadRecentInspections();
 
   window.addEventListener('beforeunload', () => {
