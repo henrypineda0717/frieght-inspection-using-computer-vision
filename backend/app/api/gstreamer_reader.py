@@ -24,6 +24,7 @@ def create_video_reader_pipeline(video_path: str, width: int, height: int):
         uri = extract_rtsp_link(video_path)
     else:
         uri = f"file://{os.path.abspath(video_path)}"
+        print('url', uri)
 
     sync_mode = 'false' if uri.startswith(('http://', 'https://', 'udp://')) else 'true'
 

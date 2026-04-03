@@ -45,6 +45,16 @@ window.addEventListener('DOMContentLoaded', () => {
   const cameraModalSave = getElement('cameraModalSave');
   const cameraNameInput = getElement('cameraNameInput');
   const cameraUrlInput = getElement('cameraUrlInput');
+  const cameraFileInput = getElement('cameraFileInput');
+  const cameraFileName = getElement('cameraFileName');
+  const cameraFileSection = getElement('cameraFileSection');
+  const cameraIpSection = getElement('cameraIpSection');
+  const cameraFrameSkipInput = getElement('cameraFrameSkipInput');
+  const cameraTargetFpsInput = getElement('cameraTargetFpsInput');
+  const cameraTargetFpsValue = getElement('cameraTargetFpsValue');
+  const cameraAiToggle = getElement('cameraAiToggle');
+  const cameraLowLatencyToggle = getElement('cameraLowLatencyToggle');
+  const cameraSourceTypeInputs = document.querySelectorAll('input[name="cameraSourceType"]');
   const cameraListEl = getElement('cameraList');
   const workspaceEmptyState = getElement('workspaceEmptyState');
   const videoContainer = document.querySelector('.video-container');
@@ -124,6 +134,14 @@ window.addEventListener('DOMContentLoaded', () => {
   let currentVideoFile = null;
   let currentVideoFrameBlob = null; // For storing the first frame of the video
   const CAMERA_STORAGE_KEY = 'mcs_ip_cameras';
+  const CAMERA_SETTINGS_KEY = 'mcs_ip_camera_settings';
+  const DEFAULT_CAMERA_SETTINGS = {
+    frameSkip: 0,
+    targetFps: 30,
+    aiOverlay: true,
+    lowLatency: false
+  };
+  let cameraSettings = { ...DEFAULT_CAMERA_SETTINGS };
   let cameraList = [];
   let selectedCameraUrl = '';
   let activeCameraStreamId = '';
@@ -182,6 +200,106 @@ window.addEventListener('DOMContentLoaded', () => {
     video.load();
   }
 
+  function updateCameraSourceFields() {
+    const selectedValue = document.querySelector('input[name="cameraSourceType"]:checked')?.value || 'ip';
+    if (cameraFileSection) {
+      cameraFileSection.classList.toggle('source-field-hidden', selectedValue !== 'local');
+    }
+    if (cameraIpSection) {
+      cameraIpSection.classList.toggle('source-field-hidden', selectedValue !== 'ip');
+    }
+  }
+
+  cameraSourceTypeInputs.forEach((input) => {
+    input.addEventListener('change', updateCameraSourceFields);
+  });
+  updateCameraSourceFields();
+
+  cameraFileInput?.addEventListener('change', (event) => {
+    const file = event.target.files?.[0];
+    if (cameraFileName) {
+      cameraFileName.textContent = file ? file.name : 'No file selected';
+    }
+  });
+
+  function persistCameraSettings() {
+    try {
+      localStorage.setItem(CAMERA_SETTINGS_KEY, JSON.stringify(cameraSettings));
+    } catch (err) {
+      console.warn('Failed to persist camera settings', err);
+    }
+  }
+
+  function updateCameraSettingInputs() {
+    if (cameraFrameSkipInput) cameraFrameSkipInput.value = cameraSettings.frameSkip;
+    if (cameraTargetFpsInput) cameraTargetFpsInput.value = cameraSettings.targetFps;
+    if (cameraTargetFpsValue) cameraTargetFpsValue.textContent = cameraSettings.targetFps;
+    if (cameraAiToggle) cameraAiToggle.checked = cameraSettings.aiOverlay;
+    if (cameraLowLatencyToggle) cameraLowLatencyToggle.checked = cameraSettings.lowLatency;
+  }
+
+  function loadCameraSettingsFromStorage() {
+    try {
+      const stored = localStorage.getItem(CAMERA_SETTINGS_KEY);
+      if (stored) {
+        const parsed = JSON.parse(stored);
+        cameraSettings = { ...DEFAULT_CAMERA_SETTINGS, ...parsed };
+      }
+    } catch (err) {
+      cameraSettings = { ...DEFAULT_CAMERA_SETTINGS };
+    }
+    updateCameraSettingInputs();
+  }
+
+  function applyCameraSettingsFromConfig(config) {
+    if (config?.settings) {
+      cameraSettings = { ...DEFAULT_CAMERA_SETTINGS, ...config.settings };
+      updateCameraSettingInputs();
+      persistCameraSettings();
+    }
+  }
+
+  cameraFrameSkipInput?.addEventListener('input', (event) => {
+    cameraSettings.frameSkip = Math.max(0, Number(event.target.value) || 0);
+    if (cameraFrameSkipInput) cameraFrameSkipInput.value = cameraSettings.frameSkip;
+    persistCameraSettings();
+  });
+
+  cameraTargetFpsInput?.addEventListener('input', (event) => {
+    const value = Math.min(60, Math.max(10, Number(event.target.value) || 10));
+    cameraSettings.targetFps = value;
+    if (cameraTargetFpsInput) cameraTargetFpsInput.value = value;
+    if (cameraTargetFpsValue) cameraTargetFpsValue.textContent = value;
+    persistCameraSettings();
+  });
+
+  cameraAiToggle?.addEventListener('change', (event) => {
+    cameraSettings.aiOverlay = event.target.checked;
+    persistCameraSettings();
+  });
+
+  cameraLowLatencyToggle?.addEventListener('change', (event) => {
+    cameraSettings.lowLatency = event.target.checked;
+    persistCameraSettings();
+  });
+
+  loadCameraSettingsFromStorage();
+
+  async function uploadLocalVideo(file) {
+    if (!file) throw new Error('No file provided');
+    const form = new FormData();
+    form.append('video', file);
+    const response = await fetch(`${API_BASE}/camera-stream/upload`, {
+      method: 'POST',
+      body: form
+    });
+    if (!response.ok) {
+      const detail = await response.text();
+      throw new Error(detail || 'Failed to upload video');
+    }
+    return response.json();
+  }
+
   function attachHlsStream(playlistUrl) {
     if (!playlistUrl) return;
     destroyHlsPlayer();
@@ -216,9 +334,8 @@ window.addEventListener('DOMContentLoaded', () => {
     return new Promise((resolve) => setTimeout(resolve, ms));
   }
 
-  async function waitForPlaylist(camId, timeoutMs = 10000) {
-    const deadline = Date.now() + timeoutMs;
-    while (Date.now() < deadline) {
+  async function waitForPlaylist(camId) {
+    while (true) {
       try {
         const resp = await fetch(`${API_BASE}/camera-stream/status`);
         if (!resp.ok) throw new Error('Status check failed');
@@ -226,12 +343,14 @@ window.addEventListener('DOMContentLoaded', () => {
         if (status.cam_id === camId && status.ready) {
           return true;
         }
+        if (!status.running) {
+          return false;
+        }
       } catch (err) {
         console.warn('Playlist readiness check failed', err);
       }
       await sleep(500);
     }
-    return false;
   }
 
   async function stopCameraStream() {
@@ -271,11 +390,17 @@ window.addEventListener('DOMContentLoaded', () => {
     updateBackendStatus('Starting camera stream...', true);
     setWorkspaceEmptyState(false, 'Camera preview active', 'Streaming from selected camera.');
     if (btnAnalyze) btnAnalyze.disabled = true;
+    applyCameraSettingsFromConfig(config);
     try {
+      const payload = {
+        name: config.name || 'Camera',
+        source: config.source,
+        settings: cameraSettings
+      };
       const response = await fetch(`${API_BASE}/camera-stream/start`, {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({ name: config.name || 'Camera', source: config.source })
+        body: JSON.stringify(payload)
       });
       if (!response.ok) {
         const detail = await response.text();
@@ -284,8 +409,8 @@ window.addEventListener('DOMContentLoaded', () => {
       const data = await response.json();
       activeCameraStreamId = data.cam_id;
       const playlistUrl = `/hls/${data.cam_id}/playlist.m3u8`;
-      const ready = data.ready || (await waitForPlaylist(data.cam_id, 15000));
-      if (!ready) {
+      const playlistReady = data.ready || (await waitForPlaylist(data.cam_id));
+      if (!playlistReady) {
         throw new Error('Playlist not ready yet; try again in a moment');
       }
       attachHlsStream(playlistUrl);
@@ -740,7 +865,7 @@ window.addEventListener('DOMContentLoaded', () => {
     cameraList.forEach((cam, idx) => {
       const option = document.createElement('option');
       option.value = cam.url;
-      option.textContent = cam.name || `Camera ${idx + 1}`;
+      option.textContent = formatCameraLabel(cam, idx);
       cameraDropdown.appendChild(option);
     });
     if (selectedCameraUrl) {
@@ -762,7 +887,7 @@ window.addEventListener('DOMContentLoaded', () => {
       const item = document.createElement('li');
       item.className = 'camera-list-item';
       const label = document.createElement('span');
-      label.innerHTML = `<strong>${cam.name || `Camera ${idx + 1}`}</strong><br><small>${cam.url}</small>`;
+      label.innerHTML = `<strong>${formatCameraLabel(cam, idx)}</strong><br><small>${cam.url}</small>`;
       item.appendChild(label);
       const removeBtn = document.createElement('button');
       removeBtn.type = 'button';
@@ -776,10 +901,34 @@ window.addEventListener('DOMContentLoaded', () => {
       item.addEventListener('click', () => {
         selectedCameraUrl = cam.url;
         if (cameraDropdown) cameraDropdown.value = cam.url;
-        startCameraStream({ name: cam.name, source: cam.url }).catch(() => {});
+        playCameraEntry(cam);
       });
       cameraListEl.appendChild(item);
     });
+  }
+
+  function formatCameraLabel(cam, idx) {
+    if (!cam) return `Camera ${idx + 1}`;
+    if (cam.sourceType === 'local') {
+      return `${cam.name || cam.fileName || `Local Camera ${idx + 1}`} (local)`;
+    }
+    return cam.name || `Camera ${idx + 1}`;
+  }
+
+  async function playCameraEntry(cam) {
+    if (!cam) return;
+    try {
+      await startCameraStream({
+        name: cam.name || 'Camera',
+        source: cam.url,
+        settings: cam.settings,
+        sourceType: cam.sourceType
+      });
+      selectedCameraUrl = cam.url;
+      if (cameraDropdown) cameraDropdown.value = cam.url;
+    } catch (err) {
+      console.error('Failed to play camera entry:', err);
+    }
   }
 
   function removeCameraAt(index) {
@@ -797,7 +946,11 @@ window.addEventListener('DOMContentLoaded', () => {
   function loadSavedCameras() {
     try {
       const stored = localStorage.getItem(CAMERA_STORAGE_KEY);
-      cameraList = stored ? JSON.parse(stored) : [];
+    cameraList = (stored ? JSON.parse(stored) : []).map((cam) => ({
+      ...cam,
+      sourceType: cam.sourceType || 'ip',
+      settings: { ...DEFAULT_CAMERA_SETTINGS, ...(cam.settings || {}) }
+    }));
     } catch (err) {
       cameraList = [];
     }
@@ -816,22 +969,68 @@ window.addEventListener('DOMContentLoaded', () => {
     cameraModal.classList.add('hidden');
     if (cameraNameInput) cameraNameInput.value = '';
     if (cameraUrlInput) cameraUrlInput.value = '';
+    if (cameraFileInput) cameraFileInput.value = '';
+    if (cameraFileName) cameraFileName.textContent = 'No file selected';
+    updateCameraSourceFields();
   }
 
-  function saveCameraConfig() {
+  async function saveCameraConfig() {
     const name = cameraNameInput ? cameraNameInput.value.trim() : '';
+    const sourceType = document.querySelector('input[name="cameraSourceType"]:checked')?.value || 'ip';
+    const settingsCopy = { ...cameraSettings };
+
+    if (sourceType === 'local') {
+      if (!cameraFileInput?.files?.length) {
+        alert('Please select a local video file.');
+        return;
+      }
+      const file = cameraFileInput.files[0];
+      updateBackendStatus('Uploading local video...', true);
+      try {
+        const result = await uploadLocalVideo(file);
+        const source = result?.source;
+        if (!source) throw new Error('Upload response missing source path');
+
+        const entry = {
+          name,
+          url: source,
+          sourceType: 'local',
+          fileName: file.name,
+          settings: settingsCopy
+        };
+
+        cameraList.push(entry);
+        persistCameras();
+        renderCameraDropdown();
+        renderCameraList();
+        await playCameraEntry(entry);
+      } catch (err) {
+        console.error('Failed to save local camera:', err);
+        updateBackendStatus('Local upload failed', false);
+        alert(err.message || 'Unable to upload local video');
+      } finally {
+        closeCameraModal();
+      }
+      return;
+    }
+
     const url = cameraUrlInput ? cameraUrlInput.value.trim() : '';
     if (!url) {
       alert('Please provide the stream URL for the camera.');
       return;
     }
-    cameraList.push({ name, url });
+
+    const entry = {
+      name,
+      url,
+      sourceType: 'ip',
+      settings: settingsCopy
+    };
+    cameraList.push(entry);
     persistCameras();
     renderCameraDropdown();
-    if (cameraDropdown) {
-      cameraDropdown.value = url;
-      startCameraStream({ name: name || `Camera`, source: url }).catch(() => {});
-    }
+    renderCameraList();
+    await playCameraEntry(entry);
     closeCameraModal();
   }
 
@@ -956,6 +1155,10 @@ window.addEventListener('DOMContentLoaded', () => {
       clearInterval(pollingInterval);
       pollingInterval = null;
     }
+  }
+
+  function stopAutoAnalyze() {
+    // Auto analysis helper placeholder (unused but safe to call for now).
   }
 
   // ---------- Analysis for images ----------
@@ -1188,11 +1391,9 @@ window.addEventListener('DOMContentLoaded', () => {
       const url = event.target.value;
       selectedCameraUrl = url;
       if (url) {
-        const cam = cameraList.find((c) => c.url === url) || { name: 'Camera' };
-        try {
-          await startCameraStream({ name: cam.name, source: url });
-        } catch (err) {
-          console.error('Camera stream change failed:', err);
+        const cam = cameraList.find((c) => c.url === url);
+        if (cam) {
+          await playCameraEntry(cam);
         }
       } else {
         await stopCameraStream();

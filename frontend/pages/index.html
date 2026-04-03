@@ -281,40 +281,80 @@
         </div>
     </div>
 
-    <div id="cameraModal" class="modal hidden">
-        <div class="modal-content">
-            <div class="modal-header">
-                <h3>Configure IP camera</h3>
-                <button id="cameraModalClose" class="modal-close" type="button" aria-label="Close dialog">&times;</button>
-            </div>
-            <div class="modal-body">
-                <label for="cameraNameInput">Camera name</label>
-                <input type="text" id="cameraNameInput" placeholder="Dock 4, Gate A" />
-                <label for="cameraUrlInput">Stream URL</label>
-                <input type="text" id="cameraUrlInput" placeholder="rtsp://192.168.1.55:554/stream" />
-            </div>
-            <div class="modal-cameras">
-                <h4>Saved cameras</h4>
-                <ul id="cameraList" class="camera-list">
-                    <li class="camera-list-placeholder">No cameras added yet.</li>
-                </ul>
-            </div>
-            <div class="modal-actions">
-                <button id="cameraModalCancel" class="btn btn-secondary">Cancel</button>
-                <button id="cameraModalSave" class="btn btn-primary">Save camera</button>
+        <div id="cameraModal" class="modal hidden">
+            <div class="modal-content">
+                <div class="modal-header">
+                    <h3>Configure camera</h3>
+                    <button id="cameraModalClose" class="modal-close" type="button" aria-label="Close dialog">&times;</button>
+                </div>
+                <div class="modal-body">
+                    <label for="cameraNameInput">Camera name</label>
+                    <input type="text" id="cameraNameInput" placeholder="Dock 4, Gate A" />
+                    <form id="cameraSourceForm" class="camera-source-form" onsubmit="return false;">
+                        <div class="source-type-row">
+                            <span class="source-type-label">Source selection</span>
+                            <div class="source-type-options">
+                                <label class="radio-option">
+                                    <input type="radio" name="cameraSourceType" value="local" />
+                                    Local video file
+                                </label>
+                                <label class="radio-option">
+                                    <input type="radio" name="cameraSourceType" value="ip" checked />
+                                    IP address / URL
+                                </label>
+                            </div>
+                        </div>
+                        <div class="source-field source-field-hidden" id="cameraFileSection">
+                            <label for="cameraFileInput">Browse video file</label>
+                            <input type="file" id="cameraFileInput" accept="video/*" />
+                            <span id="cameraFileName" class="file-hint">No file selected</span>
+                        </div>
+                        <div class="source-field" id="cameraIpSection">
+                            <label for="cameraUrlInput">Stream URL</label>
+                            <input type="text" id="cameraUrlInput" placeholder="http://192.168.8.57:8080/video" />
+                        </div>
+                    </form>
+                    <div class="camera-settings">
+                        <h4>Camera settings</h4>
+                        <div class="settings-grid">
+                            <label class="settings-field">
+                                Frame skipping
+                                <input type="number" id="cameraFrameSkipInput" min="0" step="1" value="0" />
+                            </label>
+                            <label class="settings-field">
+                                Target FPS <span id="cameraTargetFpsValue">30</span>
+                                <input type="range" id="cameraTargetFpsInput" min="10" max="60" step="1" value="30" />
+                            </label>
+                            <label class="settings-field toggle-field">
+                                <input type="checkbox" id="cameraAiToggle" checked />
+                                Enable AI overlay
+                            </label>
+                            <label class="settings-field toggle-field">
+                                <input type="checkbox" id="cameraLowLatencyToggle" />
+                                Low-latency mode
+                            </label>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-cameras">
+                    <h4>Saved cameras</h4>
+                    <ul id="cameraList" class="camera-list">
+                        <li class="camera-list-placeholder">No cameras added yet.</li>
+                    </ul>
+                </div>
+                <div class="modal-actions">
+                    <button id="cameraModalCancel" class="btn btn-secondary">Cancel</button>
+                    <button id="cameraModalSave" class="btn btn-primary">Save camera</button>
+                </div>
             </div>
         </div>
-    </div>
 
-    <!-- Shared JavaScript (global functions, navigation helpers, etc.) -->
-    <script src="https://cdn.jsdelivr.net/npm/hls.js@1.4.2/dist/hls.min.js"></script>
     <script src="/assets/js/scripts.js"></script>
     <script>
         window.__historyNavigationEnabled = true;
     </script>
     <script src="/assets/js/history.js"></script>
 
-    <!-- Updated navigation script (preserves index state) -->
     <script>
     (function() {
         const mainContainer = document.getElementById('mainContentContainer');

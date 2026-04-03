@@ -100,85 +100,108 @@ class CameraPipeline:
 
         return True
 
+    def _apply_dummy_annotation(self, frame):
+        if frame is None or frame.size == 0:
+            return
+        h, w = frame.shape[:2]
+        thickness = max(2, min(h, w) // 200)
+        color_box = np.array([0, 255, 0], dtype=np.uint8)
+        color_text = np.array([255, 215, 0], dtype=np.uint8)
+        target = frame[..., :3]
+
+        x1 = w // 4
+        y1 = h // 4
+        x2 = min(w - 1, x1 + w // 3)
+        y2 = min(h - 1, y1 + h // 3)
+
+        target[y1:y1 + thickness, x1:x2] = color_box
+        target[y2 - thickness:y2, x1:x2] = color_box
+        target[y1:y2, x1:x1 + thickness] = color_box
+        target[y1:y2, x2 - thickness:x2] = color_box
+
+        text_bar_height = thickness * 2
+        y_text = max(0, y1 - text_bar_height)
+        x_text_end = min(w, x1 + text_bar_height * 3)
+        target[y_text:y1, x1:x_text_end] = color_text
+
     def on_new_sample(self, sink):
-            if self.process_shutdown:
-                return Gst.FlowReturn.EOS
+        if self.process_shutdown:
+            return Gst.FlowReturn.EOS
 
-            sample = sink.emit("pull-sample")
-            if not sample:
-                return Gst.FlowReturn.OK
+        sample = sink.emit("pull-sample")
+        if not sample:
+            return Gst.FlowReturn.OK
 
-            buffer = sample.get_buffer()
-            # Keep original timestamps to prevent HLS jitter
-            pts, dts = buffer.pts, buffer.dts
+        buffer = sample.get_buffer()
+        pts, dts = buffer.pts, buffer.dts
 
-            success, mapinfo = buffer.map(Gst.MapFlags.READ)
-            if not success:
-                return Gst.FlowReturn.ERROR
+        success, mapinfo = buffer.map(Gst.MapFlags.READ)
+        if not success:
+            return Gst.FlowReturn.ERROR
+
+        try:
+            width = self.width
+            height = self.height
+            format_tag = 'BGRx'
+            caps = sample.get_caps()
+            if caps and caps.get_size() > 0:
+                structure = caps.get_structure(0)
+                if structure.has_field('width'):
+                    width = structure.get_int('width')[1]
+                if structure.has_field('height'):
+                    height = structure.get_int('height')[1]
+                if structure.has_field('format'):
+                    format_tag = structure.get_string('format') or format_tag
+
+            channels = 4 if 'x' in format_tag.lower() or 'a' in format_tag.lower() else 3
+            expected_size = width * height * channels
+            actual_size = mapinfo.size
+            if actual_size < expected_size:
+                channels = max(1, actual_size // (width * height))
+                expected_size = width * height * channels
+            frame_data = mapinfo.data[:expected_size]
+            frame_bgrx = np.ndarray((height, width, channels), dtype=np.uint8, buffer=frame_data).copy()
+            if channels > 3:
+                frame_bgr = np.ascontiguousarray(frame_bgrx[:, :, :3])
+            else:
+                frame_bgr = np.ascontiguousarray(frame_bgrx)
+
+            self._apply_dummy_annotation(frame_bgrx)
 
             try:
-                width = self.width
-                height = self.height
-                format_tag = 'BGRx'
-                caps = sample.get_caps()
-                if caps and caps.get_size() > 0:
-                    structure = caps.get_structure(0)
-                    if structure.has_field('width'):
-                        width = structure.get_int('width')[1]
-                    if structure.has_field('height'):
-                        height = structure.get_int('height')[1]
-                    if structure.has_field('format'):
-                        format_tag = structure.get_string('format') or format_tag
+                if not self.ai_in_q.full():
+                    self.ai_in_q.put_nowait(frame_bgr)
+            except:  # pylint: disable=bare-except
+                pass
 
-                channels = 4 if 'x' in format_tag.lower() or 'a' in format_tag.lower() else 3
-                expected_size = width * height * channels
-                actual_size = mapinfo.size
-                if actual_size < expected_size:
-                    channels = max(1, actual_size // (width * height))
-                    expected_size = width * height * channels
-                frame_data = mapinfo.data[:expected_size]
-                frame_bgrx = np.ndarray((height, width, channels), dtype=np.uint8, buffer=frame_data).copy()
-                if channels > 3:
-                    frame_bgr = np.ascontiguousarray(frame_bgrx[:, :, :3])
-                else:
-                    frame_bgr = np.ascontiguousarray(frame_bgrx)
-
+            if self.ai_out_q is not None:
                 try:
-                    if not self.ai_in_q.full():
-                        self.ai_in_q.put_nowait(frame_bgr)
-                except: pass
+                    worker_data = self.ai_out_q.get(timeout=0.2)
+                    _, raw_gpu_result = worker_data
 
-                if self.ai_out_q is not None:
-                    try:
-                        worker_data = self.ai_out_q.get(timeout=0.2)
-                        _, raw_gpu_result = worker_data 
+                    if raw_gpu_result is not None:
+                        print("Processing AI results for annotation...")
+                        annotated_bgr = self.main_loop_event_loop.run_until_complete(
+                            # Placeholder for actual annotation logic, which would depend on raw_gpu_result structure
+                        )
+                        print("Annotation complete, updating frame buffer.")
+                        frame_bgrx[:, :, :3] = annotated_bgr
+                    else:
+                        print("Bypassing AI annotation, using original frame.")
+                except queue.Empty:
+                    print('AI output queue empty, bypassing annotation.')
 
-                        if raw_gpu_result is not None:
-                            print("Processing AI results for annotation...")
-                            annotated_bgr = self.main_loop_event_loop.run_until_complete(
-                                # This is a placeholder for the actual annotation logic, which would depend on the structure of raw_gpu_result
-                            )
-                            print("Annotation complete, updating frame buffer.")
-                            frame_bgrx[:, :, :3] = annotated_bgr
-                        else:
-                            print("Bypassing AI annotation, using original frame.")
-                    except queue.Empty:
-                        print('AI output queue empty, bypassing annotation.')
+            gst_buffer = Gst.Buffer.new_wrapped(frame_bgrx.tobytes())
+            gst_buffer.pts = pts if pts != Gst.CLOCK_TIME_NONE else (self.frame_count * self.duration_ns)
+            gst_buffer.dts = dts if dts != Gst.CLOCK_TIME_NONE else gst_buffer.pts
+            gst_buffer.duration = self.duration_ns
 
-                # 4. Create output buffer for HLS
-                gst_buffer = Gst.Buffer.new_wrapped(frame_bgrx.tobytes())
-                gst_buffer.pts = pts if pts != Gst.CLOCK_TIME_NONE else (self.frame_count * self.duration_ns)
-                gst_buffer.dts = dts if dts != Gst.CLOCK_TIME_NONE else gst_buffer.pts
-                gst_buffer.duration = self.duration_ns
+        finally:
+            buffer.unmap(mapinfo)
 
-            finally:
-                buffer.unmap(mapinfo)
-
-            # Push to HLS Encoder
-            self.appsource.emit("push-buffer", gst_buffer)
-            self.frame_count += 1
-            return Gst.FlowReturn.OK
-        
+        self.appsource.emit("push-buffer", gst_buffer)
+        self.frame_count += 1
+        return Gst.FlowReturn.OK
 
     def _check_shutdown(self):
         if self.shutdown_pipe and self.shutdown_pipe.poll():
